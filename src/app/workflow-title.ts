@@ -6,8 +6,8 @@ import { ApprovalWorkflow } from "./approval-workflow.model";
   selector: 'workflow-title',
   template: `
     <div class="flex flex-col gap-2">
-      @if(!editingTitle() && form().title().value()){
-        <h2><strong>{{ form().title().value() }} </strong>
+      @if(!editingTitle() && title()().value()){
+        <h2><strong>{{ title()().value() }} </strong>
           <button 
           type="button" 
           class="cursor-pointer"
@@ -17,13 +17,13 @@ import { ApprovalWorkflow } from "./approval-workflow.model";
         </h2>
       }
       
-      @if(editingTitle() || form().title().value() == ''){
+      @if(editingTitle() || title()().value() == ''){
         <div class="flex flex-row gap-2">
           <input 
             id="title" 
             type="text" 
-            class="border border-amber-500 px-3 py-2 rounded-sm" 
-            [value]="form().title().value()"
+            class="border border-gray-200 px-3 py-2 rounded-sm" 
+            [value]="title()().value()"
             placeholder="Add title..."
             (keydown.escape)="editingTitle.set(false)"
             (keydown.enter)="updateTitle($event)"
@@ -34,7 +34,8 @@ import { ApprovalWorkflow } from "./approval-workflow.model";
   `,
 })
 export class WorkflowTitle {
-  readonly form = input.required<FieldTree<ApprovalWorkflow, string | number>>();
+  readonly title = input.required<FieldTree<string, string | number>>();
+  readonly id = input.required<FieldTree<string | null, string | number>>();
 
   readonly editingTitle = signal<boolean>(false);
 
@@ -49,8 +50,8 @@ export class WorkflowTitle {
     const value = el.value;
 
     this.editingTitle.set(false);
-    this.form().title().value.set(value);
-    this.form().id().value.set(this.convertTitleStringToId(value));
+    this.title()().value.set(value);
+    this.id()().value.set(this.convertTitleStringToId(value));
   }
 
   private convertTitleStringToId(title: string): string {

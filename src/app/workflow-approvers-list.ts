@@ -14,7 +14,7 @@ export interface Approver {
   template: `
     <ng-content select="[beforeList]" />
     <ul class="flex flex-col gap-2 ml-4 mt-4">
-      @for(approver of form().approvers; track $index){
+      @for(approver of approvers(); track $index){
         <workflow-list-item>
           <div>
             <select [control]="approver.requirementStatus">
@@ -23,41 +23,40 @@ export interface Approver {
             </select>
           </div>
           <div class="flex-1">
-            <input type="text" class="border border-amber-500 px-3 py-2 rounded-sm w-full">
+            <input type="text" class="border border-gray-200 px-3 py-2 rounded-sm w-full">
           </div>
-          @if(form().approvers().value().length > 1){
+          @if(approvers()().value().length > 1){
             <span class="cursor-pointer" (click)="removeApprover(approver().value())">Remove</span>
           }
         </workflow-list-item>
       }
 
       <workflow-list-item>
-        <button type="button" class="underline cursor-pointer" (click)="addApprover()">Add {{ form().approvers().value().length > 0 ? 'Another Approver' : 'Approver' }} </button>
+        <button type="button" class="underline cursor-pointer" (click)="addApprover()">Add {{ approvers()().value().length > 0 ? 'Another Approver' : 'Approver' }} </button>
       </workflow-list-item>
-      <!-- <ul>Require xxx</ul> -->
     </ul>
     <ng-content select="[afterList]" />
   `,
   imports:[Control, WorkflowListItem],
 })
 export class WorkflowApproversList {
-  readonly form = input.required<FieldTree<ApprovalWorkflow, string | number>>();
+  readonly approvers = input.required<FieldTree<Approver[], string | number>>();
 
   addApprover(): void {
     const key = Date.now().toString();
 
-    if(this.form().approvers().value().length > 0){
-      this.form().approvers().value.update((arr) => [...arr, this.createNewApprover(key)]);
+    if(this.approvers()().value().length > 0){
+      this.approvers()().value.update((arr) => [...arr, this.createNewApprover(key)]);
       return;
     }
     
-    this.form().approvers().value.set([this.createNewApprover(key)]);
+    this.approvers()().value.set([this.createNewApprover(key)]);
   }
 
   removeApprover(approver: Approver): void {
-    const filteredArr = this.form().approvers().value().filter((val) => val.id != approver.id);
+    const filteredArr = this.approvers()().value().filter((val) => val.id != approver.id);
 
-    this.form().approvers().value.set(filteredArr);
+    this.approvers()().value.set(filteredArr);
   }
 
   private createNewApprover(id: string): Approver {

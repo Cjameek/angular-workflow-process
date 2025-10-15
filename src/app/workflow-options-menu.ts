@@ -13,12 +13,12 @@ import { CdkMenuModule } from '@angular/cdk/menu';
     </button>
 
     <ng-template #workflowOptions>
-      <ul class="bg-white p-4 shadow" cdkMenu>
-        <li>
-          <button cdkMenuItem>Undo</button>
+      <ul class="bg-white shadow flex flex-col" cdkMenu>
+        <li class="flex-1">
+          <button class="w-full px-8 py-2 hover:bg-gray-200 text-left cursor-pointer transition-colors" cdkMenuItem>Edit Approval</button>
         </li>
-        <li>
-          <button cdkMenuItem>Redo</button>
+        <li class="flex-1">
+          <button class="w-full px-8 py-2 hover:bg-gray-200 text-left cursor-pointer transition-colors" cdkMenuItem>Delete Approval</button>
         </li>
       </ul>
     </ng-template>
