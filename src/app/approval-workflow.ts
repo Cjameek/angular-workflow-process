@@ -1,5 +1,5 @@
 import { Component, input, linkedSignal, output } from '@angular/core';
-import { applyEach, form, required } from '@angular/forms/signals';
+import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
 
 import { WorkflowListApprovers } from './workflow-list-approvers';
 import { WorkflowListRules } from './workflow-list-rules';
@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
       }
     </form>
 
-    <pre>
+    <pre class="bg-gray-200 p-3 rounded-md">
       {{ form().value() | json }}
     </pre>
   `,
@@ -52,15 +52,7 @@ export class ApprovalWorkflowComponent {
   readonly cancelApproval = output<void>();
   readonly saveApproval = output<ApprovalWorkflow>();
 
-  readonly form = form(this.formState, (path) => {
-    required(path.title),
-    applyEach(path.rules, (ctx) => {
-      required(ctx.requirementStatus),
-      required(ctx.property),
-      required(ctx.value)
-      // required(ctx.comparisonOperator, { when: () => ctx.property })
-    })
-  });
+  readonly form = form(this.formState, (path) => this.buildWorkflowSchema(path));
 
   protected cancel(): void {
     this.cancelApproval.emit();
@@ -70,5 +62,49 @@ export class ApprovalWorkflowComponent {
     if(this.form().valid()){
       this.saveApproval.emit(this.form().value());
     }
+  }
+
+  private buildWorkflowSchema(path: FieldPath<ApprovalWorkflow>): void {
+    minLength(path.title, 5, { message: 'Title must be at least 5 chars' }),
+    maxLength(path.title, 50, { message: 'Title cannot exceed 50 chars' }),
+    pattern(path.title, /^[a-zA-Z]*$/, { message: 'Only alphabetical chars allowed' }),
+    validate(path.rules, (ctx) => {
+        const arr = ctx.value();
+
+        if (arr.length > 1) {
+            return null;
+        }
+
+        return customError({
+            kind: 'minimum_rule_requirement',
+            message: `At least 1 rule required`,
+        });
+    }),
+    validate(path.approvers, (ctx) => {
+        const arr = ctx.value();
+
+        if (arr.length > 1) {
+            return null;
+        }
+
+        return customError({
+            kind: 'minimum_approver_requirement',
+            message: `At least 1 approver required`,
+        });
+    }),
+    applyEach(path.rules, (ctx) => {
+      required(ctx.requirementStatus),
+      required(ctx.property),
+      required(ctx.value)
+      hidden(ctx.comparisonOperator, (c) => c.valueOf(ctx.property)?.type != 'number')
+      required(ctx.comparisonOperator, { when: (c) => c.valueOf(ctx.property)?.type == 'number' })
+    }),
+    applyEach(path.approvers, (ctx) => {
+      required(ctx.requirementStatus, { message: 'Must select a requirement status' }),
+      required(ctx.user, { when: (c) => c.valueOf(ctx.type) == 'USER', message: 'A user must be selected' }),
+      required(ctx.role, { when: (c) => c.valueOf(ctx.type) == 'ROLE', message: 'A role must be selected' }),
+      hidden(ctx.user, (c) => c.valueOf(ctx.type) != 'USER'),
+      hidden(ctx.role, (c) => c.valueOf(ctx.type) != 'ROLE')
+    })
   }
 }
