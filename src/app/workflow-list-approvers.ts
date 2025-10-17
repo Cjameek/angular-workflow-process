@@ -5,6 +5,7 @@ import { RequirementStatus } from "./approval-workflow.model";
 import { DropdownRequirementStatus } from "./controls/dropdown-requirement-status";
 import { DropdownUserSelection } from "./controls/dropdown-user-selection";
 import { DropdownRoleSelection } from "./controls/dropdown-role-selection";
+import { RadioGroupApproverType } from "./controls/radio-approver-type";
 
 export interface User {
   name: string,
@@ -33,16 +34,7 @@ export interface Approver {
           <workflow-list-item>
             <dropdown-requirement-status [control]="approver.requirementStatus" />
 
-            <div class="flex flex-col">
-              <label>
-                <input type="radio" [control]="approver.type" [value]="'USER'" />
-                User
-              </label>
-              <label>
-                <input type="radio" [control]="approver.type" [value]="'ROLE'" />
-                Role
-              </label>
-            </div>
+            <radio-group-approver-type [control]="approver.type" (valueChanged)="approverTypeChanged($event, approver)" />
             
             @if(!approver.user().hidden()){
               <dropdown-user-selection class="block flex-1" [options]="users()" [control]="approver.user" />
@@ -71,7 +63,7 @@ export interface Approver {
       </ul>
     </fieldset>
   `,
-  imports:[Control, WorkflowListItem, DropdownRequirementStatus, DropdownUserSelection, DropdownRoleSelection],
+  imports:[Control, WorkflowListItem, DropdownRequirementStatus, DropdownUserSelection, DropdownRoleSelection, RadioGroupApproverType],
 })
 export class WorkflowListApprovers {
   readonly approvers = input.required<FieldTree<Approver[], string | number>>();
@@ -98,6 +90,15 @@ export class WorkflowListApprovers {
     const filteredArr = this.approvers()().value().filter((val) => val.id != approver.id);
 
     this.approvers()().value.set(filteredArr);
+  }
+
+  approverTypeChanged(value: ('USER' | 'ROLE'), approver: FieldTree<Approver, string | number>): void {
+    if(value == 'USER'){
+      approver.role().value.set(null);
+    }
+    if(value == 'ROLE'){
+      approver.user().value.set(null);
+    }
   }
 
   private createNewApprover(id: string): Approver {
