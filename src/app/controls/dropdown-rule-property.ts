@@ -1,10 +1,7 @@
 import { Component, computed, input, model, output } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
 import { RuleProperty } from '../workflow-list-rules';
-
-type NarrowedRuleProperty<T> = {
-  [K in keyof Omit<RuleProperty, 'name'>]: RuleProperty[K]
-} & { name: keyof T };
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'dropdown-rule-property',
@@ -20,20 +17,20 @@ type NarrowedRuleProperty<T> = {
       [attr.aria-describedby]="descriptionId()"
     >
       <option value=""></option>
-      @for(key of keys(); track key){
-        <option [value]="key">{{ key }}</option>
+      @for(option of options(); track option.name){
+        <option [ngValue]="option" [attr.selected]="option.name == value()?.name ? true : null">{{ option.name }}</option>
       }
     </select>
     
     <small class="sr-only" [attr.id]="descriptionId()">Select a property from order type to use as basis for approval rule.</small>
-  `
+  `,
+  imports: [FormsModule]
 })
-export class DropdownRuleProperty<T> implements FormValueControl<NarrowedRuleProperty<T> | null> {
-  readonly value = model<NarrowedRuleProperty<T> | null>(null);
-  readonly options = input.required<NarrowedRuleProperty<T>[]>();
+export class DropdownRuleProperty implements FormValueControl<RuleProperty | null> {
+  readonly value = model<RuleProperty | null>(null);
+  readonly options = input.required<RuleProperty[]>();
   readonly name = input<string>('');
   readonly disabled = input<boolean>(false);
-  readonly keys = computed(() => this.options().map(v => v.name));
   readonly labelId = computed(() => this.name() ? `${this.name()}-label` : '' );
   readonly descriptionId = computed(() => this.name() ? `${this.name()}-help` : '' );
   readonly valueChanged = output<void>();

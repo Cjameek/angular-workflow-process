@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
     >
       <option value="">Select a user</option>
       @for(option of options(); track $index){
-        <option [ngValue]="option.name">{{ option.name }}</option>
+        <option [ngValue]="option" [attr.selected]="option.name == value()?.name ? true : null">{{ option.name }}</option>
       }
     </select>
   `,

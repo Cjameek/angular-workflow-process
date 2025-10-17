@@ -16,7 +16,7 @@ import { FormValueControl } from '@angular/forms/signals';
     >
       <option value="">Select a role</option>
       @for(option of options(); track $index){
-        <option [value]="option">Any {{ option | lowercase | titlecase }}</option>
+        <option [value]="option" [attr.selected]="option == value() ? true : null">Any {{ option | lowercase | titlecase }}</option>
       }
     </select>
   `,

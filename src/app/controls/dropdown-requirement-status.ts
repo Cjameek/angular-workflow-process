@@ -16,7 +16,7 @@ import { REQUIREMENT_STATUS, RequirementStatus } from '../approval-workflow.mode
       [attr.aria-describedby]="descriptionId()"
     >
       @for(option of options(); track option){
-        <option [value]="option">{{ option }}</option>
+        <option [value]="option" [attr.selected]="option == value() ? true : null">{{ option }}</option>
       }
     </select>
     
