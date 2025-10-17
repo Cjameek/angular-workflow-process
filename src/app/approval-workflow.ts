@@ -1,12 +1,13 @@
 import { Component, input, linkedSignal, output } from '@angular/core';
-import { form, required } from '@angular/forms/signals';
+import { applyEach, form, required } from '@angular/forms/signals';
 
-import { WorkflowApproversList } from './workflow-approvers-list';
-import { WorkflowRulesList } from './workflow-rules-list';
+import { WorkflowListApprovers } from './workflow-list-approvers';
+import { WorkflowListRules } from './workflow-list-rules';
 import { WorkflowTitle } from './workflow-title';
 import { WorkflowOptionsMenu } from "./workflow-options-menu";
 import { ApprovalWorkflow } from './approval-workflow.model';
 import { WorkflowProcessingButtons } from './workflow-processing-buttons';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'approval-workflow',
@@ -23,13 +24,8 @@ import { WorkflowProcessingButtons } from './workflow-processing-buttons';
       </div>
 
       <div class="flex flex-col gap-3">
-        <workflow-rules-list [rules]="form.rules">
-          <p beforeList><strong>Rules</strong></p>  
-        </workflow-rules-list>
-        
-        <workflow-approvers-list class="block mt-3" [approvers]="form.approvers">
-          <p beforeList><strong>Approvers</strong></p>  
-        </workflow-approvers-list>
+        <workflow-list-rules [rules]="form.rules" />
+        <workflow-list-approvers [approvers]="form.approvers" />
       </div>
 
       <ng-content select="[afterFields]" />
@@ -37,13 +33,16 @@ import { WorkflowProcessingButtons } from './workflow-processing-buttons';
       @if(isEditing()){
         <workflow-processing-buttons 
           (onCancel)="cancel()" 
-          (onSave)="save()" 
-          [saveDisabled]="form().invalid()" 
+          (onSave)="save()"
         />
       }
     </form>
+
+    <pre>
+      {{ form().value() | json }}
+    </pre>
   `,
-  imports: [WorkflowTitle, WorkflowRulesList, WorkflowApproversList, WorkflowOptionsMenu, WorkflowProcessingButtons],
+  imports: [CommonModule, WorkflowTitle, WorkflowListRules, WorkflowListApprovers, WorkflowOptionsMenu, WorkflowProcessingButtons],
 })
 export class ApprovalWorkflowComponent {
   readonly state = input.required<ApprovalWorkflow>();
@@ -54,7 +53,13 @@ export class ApprovalWorkflowComponent {
   readonly saveApproval = output<ApprovalWorkflow>();
 
   readonly form = form(this.formState, (path) => {
-    required(path.title)
+    required(path.title),
+    applyEach(path.rules, (ctx) => {
+      required(ctx.requirementStatus),
+      required(ctx.property),
+      required(ctx.value)
+      // required(ctx.comparisonOperator, { when: () => ctx.property })
+    })
   });
 
   protected cancel(): void {

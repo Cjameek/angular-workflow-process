@@ -1,6 +1,5 @@
 import { Component, input, signal } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
-import { ApprovalWorkflow } from "./approval-workflow.model";
 
 @Component({
   selector: 'workflow-title',
@@ -19,8 +18,9 @@ import { ApprovalWorkflow } from "./approval-workflow.model";
       
       @if(editingTitle() || title()().value() == ''){
         <div class="flex flex-row gap-2">
+          <label class="sr-only" [attr.id]="title()().name() + '-label'" [attr.for]="title()().name()">Workflow Title</label>
           <input 
-            id="title" 
+            [attr.id]="title()().name()" 
             type="text" 
             class="border border-gray-200 px-3 py-2 rounded-sm" 
             [value]="title()().value()"
