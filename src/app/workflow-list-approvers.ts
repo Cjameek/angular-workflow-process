@@ -3,6 +3,7 @@ import { Control, FieldTree } from "@angular/forms/signals";
 import { WorkflowListItem } from "./workflow-list-item";
 import { RequirementStatus } from "./approval-workflow.model";
 import { DropdownRequirementStatus } from "./controls/dropdown-requirement-status";
+import { ListUserSelection } from "./controls/list-user-selection";
 
 export interface User {
   name: string,
@@ -29,8 +30,8 @@ export interface Approver {
           <workflow-list-item>
             <dropdown-requirement-status [control]="approver.requirementStatus" />
             
-            <div class="flex-1">
-              <input type="text" class="border border-gray-200 px-3 py-2 rounded-sm w-full">
+            <div class="flex-1">              
+              <list-user-selection [options]="users()" [control]="approver.user" />
             </div>
             @if(approvers()().value().length > 1){
               <span id="removeApproverBtn" class="cursor-pointer" (click)="removeApprover(approver().value())">Remove</span>
@@ -51,10 +52,16 @@ export interface Approver {
       </ul>
     </fieldset>
   `,
-  imports:[Control, WorkflowListItem, DropdownRequirementStatus],
+  imports:[Control, WorkflowListItem, DropdownRequirementStatus, ListUserSelection],
 })
 export class WorkflowListApprovers {
   readonly approvers = input.required<FieldTree<Approver[], string | number>>();
+  readonly users = input<User[]>([
+    { name: 'Alice Johnson', email: 'alice.johnson@example.com', phone: '555-0101' },
+    { name: 'Bob Martinez', email: 'bob.martinez@example.com', phone: '555-0102' },
+    { name: 'Charlie Kim', email: 'charlie.kim@example.com', phone: '555-0103' },
+    { name: 'Dana Lee', email: 'dana.lee@example.com', phone: '555-0104' }
+  ])
 
   addApprover(): void {
     const key = Date.now().toString();
