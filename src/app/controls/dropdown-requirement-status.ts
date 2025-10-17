@@ -1,6 +1,6 @@
 import { Component, computed, input, model } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
-import { ASSIGNMENT_CONDITION, AssignmentCondition, REQUIREMENT_STATUS, RequirementStatus } from '../approval-workflow.model';
+import { REQUIREMENT_STATUS, RequirementStatus } from '../approval-workflow.model';
 
 @Component({
   selector: 'dropdown-requirement-status',

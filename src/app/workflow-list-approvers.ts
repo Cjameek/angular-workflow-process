@@ -3,7 +3,8 @@ import { Control, FieldTree } from "@angular/forms/signals";
 import { WorkflowListItem } from "./workflow-list-item";
 import { RequirementStatus } from "./approval-workflow.model";
 import { DropdownRequirementStatus } from "./controls/dropdown-requirement-status";
-import { ListUserSelection } from "./controls/list-user-selection";
+import { DropdownUserSelection } from "./controls/dropdown-user-selection";
+import { DropdownRoleSelection } from "./controls/dropdown-role-selection";
 
 export interface User {
   name: string,
@@ -14,7 +15,9 @@ export interface User {
 export interface Approver {
   id: string,
   requirementStatus: RequirementStatus,
+  type: 'USER' | 'ROLE',
   user: User | null,
+  role: string | null
 }
 
 @Component({
@@ -29,10 +32,26 @@ export interface Approver {
         @for(approver of approvers(); track $index){
           <workflow-list-item>
             <dropdown-requirement-status [control]="approver.requirementStatus" />
-            
-            <div class="flex-1">              
-              <list-user-selection [options]="users()" [control]="approver.user" />
+
+            <div class="flex flex-col">
+              <label>
+                <input type="radio" [control]="approver.type" [value]="'USER'" />
+                User
+              </label>
+              <label>
+                <input type="radio" [control]="approver.type" [value]="'ROLE'" />
+                Role
+              </label>
             </div>
+            
+            @if(!approver.user().hidden()){
+              <dropdown-user-selection class="block flex-1" [options]="users()" [control]="approver.user" />
+            }
+
+            @if(!approver.role().hidden()){
+              <dropdown-role-selection class="block flex-1" [options]="roles()" [control]="approver.role" />
+            }
+
             @if(approvers()().value().length > 1){
               <span id="removeApproverBtn" class="cursor-pointer" (click)="removeApprover(approver().value())">Remove</span>
             }
@@ -52,7 +71,7 @@ export interface Approver {
       </ul>
     </fieldset>
   `,
-  imports:[Control, WorkflowListItem, DropdownRequirementStatus, ListUserSelection],
+  imports:[Control, WorkflowListItem, DropdownRequirementStatus, DropdownUserSelection, DropdownRoleSelection],
 })
 export class WorkflowListApprovers {
   readonly approvers = input.required<FieldTree<Approver[], string | number>>();
@@ -61,7 +80,8 @@ export class WorkflowListApprovers {
     { name: 'Bob Martinez', email: 'bob.martinez@example.com', phone: '555-0102' },
     { name: 'Charlie Kim', email: 'charlie.kim@example.com', phone: '555-0103' },
     { name: 'Dana Lee', email: 'dana.lee@example.com', phone: '555-0104' }
-  ])
+  ]);
+  readonly roles = input<string[]>(['ADMIN','REVIEWER','SUBMITTER','PLANNER','ENGINEER']);
 
   addApprover(): void {
     const key = Date.now().toString();
@@ -84,7 +104,9 @@ export class WorkflowListApprovers {
     return {
       id,
       requirementStatus: 'REQUIRE',
-      user: null
+      type: 'USER',
+      user: null,
+      role: null
     } as Approver
   }
 }
