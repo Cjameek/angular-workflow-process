@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, output } from "@angular/core";
 import { CdkMenuModule } from '@angular/cdk/menu';
 
 @Component({
@@ -15,10 +15,10 @@ import { CdkMenuModule } from '@angular/cdk/menu';
     <ng-template #workflowOptions>
       <ul class="bg-white shadow flex flex-col" cdkMenu>
         <li class="flex-1">
-          <button class="w-full px-8 py-2 hover:bg-gray-200 text-left cursor-pointer transition-colors" cdkMenuItem>Edit Approval</button>
+          <button class="w-full px-8 py-2 hover:bg-gray-200 text-left cursor-pointer transition-colors" cdkMenuItem (click)="editApproval.emit()">Edit Approval</button>
         </li>
         <li class="flex-1">
-          <button class="w-full px-8 py-2 hover:bg-gray-200 text-left cursor-pointer transition-colors" cdkMenuItem>Delete Approval</button>
+          <button class="w-full px-8 py-2 hover:bg-gray-200 text-left cursor-pointer transition-colors" cdkMenuItem (click)="deleteApproval.emit()">Delete Approval</button>
         </li>
       </ul>
     </ng-template>
@@ -26,4 +26,6 @@ import { CdkMenuModule } from '@angular/cdk/menu';
   imports: [CdkMenuModule]
 })
 export class WorkflowOptionsMenu {
+  readonly editApproval = output<void>();
+  readonly deleteApproval = output<void>();
 }

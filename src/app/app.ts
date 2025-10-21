@@ -1,4 +1,4 @@
-import { Component, linkedSignal, signal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
 import { ApprovalWorkflowComponent } from './approval-workflow';
 import { ApprovalWorkflow } from './approval-workflow.model';
@@ -14,13 +14,50 @@ export const createNewApprovalWorkflowState = (): ApprovalWorkflow => {
   } as ApprovalWorkflow
 }
 
+const DUMMY_APPROVAL = {
+  id: "TESTA",
+  title: "TESTA",
+  rules: [
+    {
+      id: "1760740782339",
+      requirementStatus: "REQUIRE",
+      assignmentCondition: "AND",
+      comparisonOperator: null,
+      property: {
+        recordType: "order",
+        name: "specialPart",
+        type: "boolean"
+      },
+      value: "TRUE"
+    }
+  ],
+  approvers: [
+    {
+      id: "1760740788461",
+      requirementStatus: "REQUIRE",
+      type: "USER",
+      user: {
+        name: "Alice Johnson",
+        email: "alice.johnson@example.com",
+        phone: "555-0101"
+      },
+      role: null
+    }
+  ],
+  prevApproval: null,
+  nextApproval: null
+} as ApprovalWorkflow
+
 @Component({
   selector: 'app-root',
   template: `
     <main class="max-w-3xl m-6">
       <div class="flex flex-col gap-3 mb-6">
         @for(approval of form.approvals; track $index){
-          <approval-workflow [state]="approval().value()" />
+          <approval-workflow 
+            [state]="approval().value()"
+            (saveApproval)="updateApproval($event)" 
+          />
         }
       </div>
 
@@ -49,7 +86,7 @@ export const createNewApprovalWorkflowState = (): ApprovalWorkflow => {
 })
 export class App {
   readonly stagingApproval = signal<ApprovalWorkflow | null>(null);
-  
+
   // [TODO] simulate httpResource value 
   readonly formState = linkedSignal(() => {
     return {
@@ -66,5 +103,18 @@ export class App {
   addApproval(approval: ApprovalWorkflow): void {
     this.form.approvals().value.update((arr) => [approval, ...arr]);
     this.stagingApproval.set(null);
+    // this.localStorageService.setItem(LOCAL_STORAGE_KEY, this.form().value());
+  }
+  
+  updateApproval(approval: ApprovalWorkflow): void {
+    this.form.approvals().value.update((arr) => {
+      return arr.map((a) => {
+        if(a.id == approval.id){
+          return approval;
+        }
+
+        return a;
+      });
+    });
   }
 }

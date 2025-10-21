@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, input, linkedSignal, output } from '@angular/core';
 import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
 
+import { ApprovalWorkflow } from './approval-workflow.model';
 import { WorkflowListApprovers } from './workflow-list-approvers';
 import { WorkflowListRules } from './workflow-list-rules';
 import { WorkflowTitleHeading, WorkflowTitleInput } from './workflow-title';
 import { WorkflowOptionsMenu } from "./workflow-options-menu";
-import { ApprovalWorkflow } from './approval-workflow.model';
 import { WorkflowProcessingButtons } from './workflow-processing-buttons';
 
 @Component({
@@ -17,13 +17,21 @@ import { WorkflowProcessingButtons } from './workflow-processing-buttons';
 
       <div class="flex flex-row">
         @if(!editingTitle()){
-          <workflow-title-heading [title]="form.title().value()" [editing]="isEditing()" (editTitle)="editingTitle.set(true)" />
+          <workflow-title-heading 
+            [title]="form.title().value()" 
+            [editing]="isEditing()" 
+            (editTitle)="editingTitle.set(true)" 
+          />
         } @else {
-          <workflow-title-input [title]="form.title" [id]="form.id" (titleUpdated)="editingTitle.set(false)" />
+          <workflow-title-input 
+            [title]="form.title" 
+            [id]="form.id" 
+            (titleUpdated)="editingTitle.set(false)" 
+          />
         }
 
         @if(!isNewApproval()){
-          <workflow-options-menu class="block ml-auto" />
+          <workflow-options-menu class="block ml-auto" (editApproval)="isEditing.set(true)" />
         }
       </div>
 
@@ -68,6 +76,7 @@ export class ApprovalWorkflowComponent {
   readonly form = form(this.formState, (path) => this.buildWorkflowSchema(path));
 
   protected cancel(): void {
+    this.isEditing.set(false);
     this.cancelApproval.emit();
   }
 
@@ -77,6 +86,7 @@ export class ApprovalWorkflowComponent {
 
     if(isValid){
       this.saveApproval.emit(this.form().value());
+      this.isEditing.set(false);
     }
   }
 
