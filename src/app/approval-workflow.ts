@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, input, linkedSignal, output } from '@angular/core';
 import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
 
@@ -40,13 +39,8 @@ import { WorkflowProcessingButtons } from './workflow-processing-buttons';
         />
       }
     </form>
-
-    <pre class="bg-gray-200 p-3 rounded-md">
-      {{ form().value() | json }}
-    </pre>
   `,
   imports: [
-    CommonModule,
     WorkflowTitle, 
     WorkflowListRules, 
     WorkflowListApprovers, 
