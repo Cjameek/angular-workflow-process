@@ -32,16 +32,41 @@ export interface Approver {
       <ul class="flex flex-col gap-2 ml-4 mt-4" aria-describedby="approvers-desc">
         @for(approver of approvers(); track $index){
           <workflow-list-item>
-            <dropdown-requirement-status [control]="approver.requirementStatus" />
+            <div>
+              @if(editing()){
+                <dropdown-requirement-status [control]="approver.requirementStatus" />
+              } @else {
+                <span>{{ approver.requirementStatus().value() }}</span>
+              }
+            </div>
 
-            <radio-group-approver-type [control]="approver.type" (valueChanged)="approverTypeChanged($event, approver)" />
+            <div>
+              @if(editing()){
+                <radio-group-approver-type [control]="approver.type" (valueChanged)="approverTypeChanged($event, approver)" />
+              } @else {
+                <span>{{ approver.type().value() }}</span>
+              }
+            </div>
+
             
             @if(!approver.user().hidden()){
-              <dropdown-user-selection class="block flex-1" [options]="users()" [control]="approver.user" />
+              <div class="block flex-1">
+                @if(editing()){
+                  <dropdown-user-selection [options]="users()" [control]="approver.user" />
+                } @else {
+                  <span>{{ approver.user().value()?.name }}</span>
+                }
+              </div>
             }
 
             @if(!approver.role().hidden()){
-              <dropdown-role-selection class="block flex-1" [options]="roles()" [control]="approver.role" />
+              <div class="block flex-1">
+                @if(editing()){
+                  <dropdown-role-selection [options]="roles()" [control]="approver.role" />
+                } @else {
+                  <span>{{ approver.role().value() }}</span>
+                }
+              </div>
             }
 
             @if(approvers()().value().length > 1){
@@ -50,23 +75,33 @@ export interface Approver {
           </workflow-list-item>
         }
   
-        <workflow-list-item>
-          <button 
-            id="addWorkflowBtn" 
-            type="button" 
-            class="underline cursor-pointer" 
-            (click)="addApprover()"
-          >
-            Add {{ approvers()().value().length > 0 ? 'Another Approver' : 'Approver' }} 
-          </button>
-        </workflow-list-item>
+        @if(editing()){
+          <workflow-list-item>
+            <button 
+              id="addWorkflowBtn" 
+              type="button" 
+              class="underline cursor-pointer" 
+              (click)="addApprover()"
+            >
+              Add {{ approvers()().value().length > 0 ? 'Another Approver' : 'Approver' }} 
+            </button>
+          </workflow-list-item>
+        }
       </ul>
     </fieldset>
   `,
-  imports:[Control, WorkflowListItem, DropdownRequirementStatus, DropdownUserSelection, DropdownRoleSelection, RadioGroupApproverType],
+  imports:[
+    Control, 
+    WorkflowListItem, 
+    DropdownRequirementStatus, 
+    DropdownUserSelection, 
+    DropdownRoleSelection, 
+    RadioGroupApproverType
+  ],
 })
 export class WorkflowListApprovers {
   readonly approvers = input.required<FieldTree<Approver[], string | number>>();
+  readonly editing = input<boolean>(false);
   readonly users = input<User[]>([
     { name: 'Alice Johnson', email: 'alice.johnson@example.com', phone: '555-0101' },
     { name: 'Bob Martinez', email: 'bob.martinez@example.com', phone: '555-0102' },

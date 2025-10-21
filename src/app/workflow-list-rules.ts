@@ -44,16 +44,28 @@ export interface Rule extends ConditionRules {
               <!-- <dropdown-assignment-condition [control]="rule.assignmentCondition" /> -->
             }
   
-            <dropdown-requirement-status [control]="rule.requirementStatus" />
-            
-            <dropdown-rule-property 
-              [control]="rule.property" 
-              [options]="values()" 
-              (valueChanged)="propertyValueChanged(rule)" 
-            />   
+            <div>
+              @if(editing()){
+                <dropdown-requirement-status [control]="rule.requirementStatus" />
+              } @else {
+                <p>{{ rule.requirementStatus().value() }}</p>
+              }
+            </div>
+
+            <div>
+              @if(editing()){
+                <dropdown-rule-property 
+                  [control]="rule.property" 
+                  [options]="values()" 
+                  (valueChanged)="propertyValueChanged(rule)" 
+                />   
+              } @else {
+                <p>{{ rule.property().value()?.name }}</p>
+              }
+            </div>
   
             @if(type){
-              <rule-input-switch [rule]="rule" [type]="type" />
+              <rule-input-switch [rule]="rule" [type]="type" [editing]="editing()" />
             }
   
             @if(rules()().value().length > 1){
@@ -62,17 +74,28 @@ export interface Rule extends ConditionRules {
           </workflow-list-item>
         }
   
-        <workflow-list-item>
-          <button id="addRuleBtn" type="button" class="underline cursor-pointer" (click)="addRule()">Add Another Rule</button>
-        </workflow-list-item>
+        @if(editing()){
+          <workflow-list-item>
+            <button id="addRuleBtn" type="button" class="underline cursor-pointer" (click)="addRule()">Add Another Rule</button>
+          </workflow-list-item>
+        }
       </ul>
     </fieldset>
     
   `,
-  imports: [FormsModule, WorkflowListItem, DropdownRuleProperty, DropdownAssignmentCondition, DropdownRequirementStatus, RuleInputSwitch, Control],
+  imports: [
+    Control,
+    FormsModule, 
+    WorkflowListItem, 
+    DropdownRuleProperty, 
+    DropdownAssignmentCondition, 
+    DropdownRequirementStatus, 
+    RuleInputSwitch
+  ],
 })
 export class WorkflowListRules {
   readonly rules = input.required<FieldTree<Rule[], string | number>>();
+  readonly editing = input<boolean>(false);
   readonly values = input<GeneralOrderKeys[]>(GENERAL_ORDER_KEYS);
 
   addRule(): void {

@@ -15,7 +15,7 @@ import { Component, input, output } from "@angular/core";
       <button 
         id="submitApprovalBtn"
         class="px-3 py-2 bg-gray-200 font-bold rounded-sm cursor-pointer" 
-        (click)="onSave.emit()"
+        (click)="submitApproval($event)"
       >
         Save
       </button>
@@ -25,4 +25,10 @@ import { Component, input, output } from "@angular/core";
 export class WorkflowProcessingButtons {
   readonly onCancel = output<void>();
   readonly onSave = output<void>();
+
+  submitApproval(e: Event): void {
+    e.preventDefault();
+
+    this.onSave.emit();
+  }
 }

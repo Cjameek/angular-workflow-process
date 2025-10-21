@@ -11,22 +11,35 @@ import { Rule } from './workflow-list-rules';
           equals
         </div>
         <div class="flex-1">
-          <input [control]="rule().value" type="text" class="border border-gray-200 px-3 py-2 rounded-sm w-full">
+          @if(editing()){
+            <input [control]="rule().value" type="text" class="border border-gray-200 px-3 py-2 rounded-sm w-full">
+          } @else {
+            <span>{{ rule().value().value() }}</span>
+          }
         </div>
       }
       @case('number') {
         <div>
-          <select class="border border-gray-200 px-3 py-2 rounded-sm w-full" [control]="rule().comparisonOperator">
-            <option value="GREATER">to be greater than</option>
-            <option value="EQUAL">to be equal to</option>
-            <option value="LESS">to be less than</option>
-          </select>
+          @if(editing()){
+            <select class="border border-gray-200 px-3 py-2 rounded-sm w-full" [control]="rule().comparisonOperator">
+              <option value="GREATER">to be greater than</option>
+              <option value="EQUAL">to be equal to</option>
+              <option value="LESS">to be less than</option>
+            </select>
+          } @else {
+            <span>{{ rule().comparisonOperator().value() }}</span>
+          }
         </div>
         <div class="flex-1">
-          <input 
-          [control]="rule().value" 
-          type="number" 
-          class="border border-gray-200 px-3 py-2 rounded-sm w-full">
+          @if(editing()){
+            <input 
+              [control]="rule().value" 
+              type="number" 
+              class="border border-gray-200 px-3 py-2 rounded-sm w-full"
+            >
+          } @else {
+            <span>{{ rule().value().value() }}</span>
+          }
         </div>
       }
       @case('boolean') {
@@ -34,10 +47,14 @@ import { Rule } from './workflow-list-rules';
           is
         </div>
         <div class="flex-1">
-          <select class="border border-gray-200 px-3 py-2 rounded-sm" [control]="rule().value">
-            <option value="TRUE">TRUE</option>
-            <option value="FALSE">FALSE</option>
-          </select>
+          @if(editing()){
+            <select class="border border-gray-200 px-3 py-2 rounded-sm" [control]="rule().value">
+              <option value="TRUE">TRUE</option>
+              <option value="FALSE">FALSE</option>
+            </select>
+          } @else {
+            <span>{{ rule().value().value() }}</span>
+          }
         </div>
       }
     }
@@ -50,4 +67,5 @@ import { Rule } from './workflow-list-rules';
 export class RuleInputSwitch {
   readonly rule = input.required<FieldTree<Rule, string | number>>();
   readonly type = input.required<'string' | 'number' | 'boolean'>();
+  readonly editing = input<boolean>(false);
 }

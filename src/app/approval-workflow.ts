@@ -1,22 +1,26 @@
+import { CommonModule } from '@angular/common';
 import { Component, input, linkedSignal, output } from '@angular/core';
 import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
 
 import { WorkflowListApprovers } from './workflow-list-approvers';
 import { WorkflowListRules } from './workflow-list-rules';
-import { WorkflowTitle } from './workflow-title';
+import { WorkflowTitleHeading, WorkflowTitleInput } from './workflow-title';
 import { WorkflowOptionsMenu } from "./workflow-options-menu";
 import { ApprovalWorkflow } from './approval-workflow.model';
 import { WorkflowProcessingButtons } from './workflow-processing-buttons';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'approval-workflow',
   template: `
-    <form class="flex flex-col gap-3 justify-center border-2 border-gray-200 p-5 rounded-lg">
+    <form class="flex flex-col gap-3 justify-center border-2 border-gray-200 p-5 rounded-lg" (ngSubmit)="save()">
       <ng-content select="[beforeFields]" />
 
       <div class="flex flex-row">
-        <workflow-title [title]="form.title" [id]="form.id" />
+        @if(!editingTitle()){
+          <workflow-title-heading [title]="form.title().value()" [editing]="isEditing()" (editTitle)="editingTitle.set(true)" />
+        } @else {
+          <workflow-title-input [title]="form.title" [id]="form.id" (titleUpdated)="editingTitle.set(false)" />
+        }
 
         @if(!isNewApproval()){
           <workflow-options-menu class="block ml-auto" />
@@ -24,8 +28,8 @@ import { CommonModule } from '@angular/common';
       </div>
 
       <div class="flex flex-col gap-3">
-        <workflow-list-rules [rules]="form.rules" />
-        <workflow-list-approvers [approvers]="form.approvers" />
+        <workflow-list-rules [rules]="form.rules" [editing]="isEditing()" />
+        <workflow-list-approvers [approvers]="form.approvers" [editing]="isEditing()" />
       </div>
 
       <ng-content select="[afterFields]" />
@@ -42,12 +46,21 @@ import { CommonModule } from '@angular/common';
       {{ form().value() | json }}
     </pre>
   `,
-  imports: [CommonModule, WorkflowTitle, WorkflowListRules, WorkflowListApprovers, WorkflowOptionsMenu, WorkflowProcessingButtons],
+  imports: [
+    CommonModule, 
+    WorkflowTitleHeading, 
+    WorkflowTitleInput, 
+    WorkflowListRules, 
+    WorkflowListApprovers, 
+    WorkflowOptionsMenu, 
+    WorkflowProcessingButtons
+  ],
 })
 export class ApprovalWorkflowComponent {
   readonly state = input.required<ApprovalWorkflow>();
   readonly isNewApproval = input<boolean>(false);
   readonly isEditing = linkedSignal(() => this.isNewApproval());
+  readonly editingTitle = linkedSignal(() => this.isEditing());
   readonly formState = linkedSignal(() => this.state());
   readonly cancelApproval = output<void>();
   readonly saveApproval = output<ApprovalWorkflow>();
@@ -59,7 +72,10 @@ export class ApprovalWorkflowComponent {
   }
 
   protected save(): void {
-    if(this.form().valid()){
+    const isValid = this.form().valid();
+    const errors = this.form().errors();
+
+    if(isValid){
       this.saveApproval.emit(this.form().value());
     }
   }
@@ -71,7 +87,7 @@ export class ApprovalWorkflowComponent {
     validate(path.rules, (ctx) => {
         const arr = ctx.value();
 
-        if (arr.length > 1) {
+        if (arr.length >= 1) {
             return null;
         }
 
@@ -83,7 +99,7 @@ export class ApprovalWorkflowComponent {
     validate(path.approvers, (ctx) => {
         const arr = ctx.value();
 
-        if (arr.length > 1) {
+        if (arr.length >= 1) {
             return null;
         }
 
