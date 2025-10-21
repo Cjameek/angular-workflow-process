@@ -5,7 +5,7 @@ import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, 
 import { ApprovalWorkflow } from './approval-workflow.model';
 import { WorkflowListApprovers } from './workflow-list-approvers';
 import { WorkflowListRules } from './workflow-list-rules';
-import { WorkflowTitleHeading, WorkflowTitleInput } from './workflow-title';
+import { WorkflowTitle } from './workflow-title';
 import { WorkflowOptionsMenu } from "./workflow-options-menu";
 import { WorkflowProcessingButtons } from './workflow-processing-buttons';
 
@@ -16,19 +16,10 @@ import { WorkflowProcessingButtons } from './workflow-processing-buttons';
       <ng-content select="[beforeFields]" />
 
       <div class="flex flex-row">
-        @if(!editingTitle()){
-          <workflow-title-heading 
-            [title]="form.title().value()" 
-            [editing]="isEditing()" 
-            (editTitle)="editingTitle.set(true)" 
-          />
-        } @else {
-          <workflow-title-input 
-            [title]="form.title" 
-            [id]="form.id" 
-            (titleUpdated)="editingTitle.set(false)" 
-          />
-        }
+        <workflow-title 
+          [title]="form.title" 
+          [editing]="isEditing()" 
+        />
 
         @if(!isNewApproval()){
           <workflow-options-menu class="block ml-auto" (editApproval)="isEditing.set(true)" />
@@ -55,9 +46,8 @@ import { WorkflowProcessingButtons } from './workflow-processing-buttons';
     </pre>
   `,
   imports: [
-    CommonModule, 
-    WorkflowTitleHeading, 
-    WorkflowTitleInput, 
+    CommonModule,
+    WorkflowTitle, 
     WorkflowListRules, 
     WorkflowListApprovers, 
     WorkflowOptionsMenu, 

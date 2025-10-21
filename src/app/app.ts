@@ -101,6 +101,8 @@ export class App {
   }
 
   addApproval(approval: ApprovalWorkflow): void {
+    approval.id = this.convertTitleStringToId(approval.title);
+
     this.form.approvals().value.update((arr) => [approval, ...arr]);
     this.stagingApproval.set(null);
     // this.localStorageService.setItem(LOCAL_STORAGE_KEY, this.form().value());
@@ -116,5 +118,9 @@ export class App {
         return a;
       });
     });
+  }
+
+  private convertTitleStringToId(title: string): string {
+    return title.replace(' ', '_').toUpperCase();
   }
 }
