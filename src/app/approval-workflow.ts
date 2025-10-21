@@ -66,6 +66,13 @@ export class ApprovalWorkflowComponent {
   readonly form = form(this.formState, (path) => this.buildWorkflowSchema(path));
 
   protected cancel(): void {
+    // [TODO] Should be checking dirty status instead of touched, but it doesn't appear to be working
+    if(!this.isNewApproval() && this.form().touched()){
+      const w = window.confirm('Do you want to undo these changes?');
+  
+      if(!w) return;
+    }
+
     this.isEditing.set(false);
     this.cancelApproval.emit();
   }
