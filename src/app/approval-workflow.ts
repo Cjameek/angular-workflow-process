@@ -105,7 +105,7 @@ export class ApprovalWorkflowComponent {
   private buildWorkflowSchema(path: FieldPath<ApprovalWorkflow>): void {
     minLength(path.title, 5, { message: 'Title must be at least 5 chars' }),
     maxLength(path.title, 50, { message: 'Title cannot exceed 50 chars' }),
-    pattern(path.title, /^[a-zA-Z]*$/, { message: 'Only alphabetical chars allowed' }),
+    pattern(path.title, /^[a-zA-Z ]*$/, { message: 'Only alphabetical chars allowed' }),
     validate(path.rules, (ctx) => {
         const arr = ctx.value();
 

@@ -2,6 +2,7 @@ import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
 import { ApprovalWorkflowComponent } from './approval-workflow';
 import { ApprovalWorkflow } from './approval-workflow.model';
+import { LocalStorageService } from './local-storage-service';
 
 export const createNewApprovalWorkflowState = (): ApprovalWorkflow => {
   return {
@@ -48,6 +49,8 @@ const DUMMY_APPROVAL = {
   nextApproval: null
 } as ApprovalWorkflow
 
+const LOCAL_STORAGE_KEY = 'approvals';
+
 @Component({
   selector: 'app-root',
   template: `
@@ -86,14 +89,14 @@ const DUMMY_APPROVAL = {
   imports: [ApprovalWorkflowComponent]
 })
 export class App {
+  readonly localStorageService = inject(LocalStorageService);
   readonly stagingApproval = signal<ApprovalWorkflow | null>(null);
+  readonly cachedApprovals = signal<{ approvals: ApprovalWorkflow[] }>(this.localStorageService.getItem(LOCAL_STORAGE_KEY) || {
+    approvals: []
+  });
 
   // [TODO] simulate httpResource value 
-  readonly formState = linkedSignal(() => {
-    return {
-      approvals: []
-    };
-  });
+  readonly formState = linkedSignal(() => this.cachedApprovals());
 
   readonly form = form<{ approvals: ApprovalWorkflow[] }>(this.formState);
 
@@ -106,6 +109,8 @@ export class App {
 
     this.form.approvals().value.update((arr) => [approval, ...arr]);
     this.stagingApproval.set(null);
+
+    this.localStorageService.setItem<{ approvals: ApprovalWorkflow[] }>(LOCAL_STORAGE_KEY, this.form().value());
   }
   
   updateApproval(approval: ApprovalWorkflow): void {
@@ -118,12 +123,16 @@ export class App {
         return a;
       });
     });
+
+    this.localStorageService.setItem<{ approvals: ApprovalWorkflow[] }>(LOCAL_STORAGE_KEY, this.form().value());
   }
 
   deleteApproval(approvalId: string): void {
     this.form.approvals().value.update((arr) => {
       return arr.filter((a) => a.id !== approvalId);
     });
+
+    this.localStorageService.setItem<{ approvals: ApprovalWorkflow[] }>(LOCAL_STORAGE_KEY, this.form().value());
   }
 
   private convertTitleStringToId(title: string): string {
