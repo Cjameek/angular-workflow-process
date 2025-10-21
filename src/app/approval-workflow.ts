@@ -22,7 +22,7 @@ import { WorkflowProcessingButtons } from './workflow-processing-buttons';
         />
 
         @if(!isNewApproval()){
-          <workflow-options-menu class="block ml-auto" (editApproval)="isEditing.set(true)" />
+          <workflow-options-menu class="block ml-auto" (editApproval)="isEditing.set(true)" (deleteApproval)="confirmDelete()" />
         }
       </div>
 
@@ -61,9 +61,24 @@ export class ApprovalWorkflowComponent {
   readonly editingTitle = linkedSignal(() => this.isEditing());
   readonly formState = linkedSignal(() => this.state());
   readonly cancelApproval = output<void>();
+  readonly deleteApproval = output<string>();
   readonly saveApproval = output<ApprovalWorkflow>();
 
   readonly form = form(this.formState, (path) => this.buildWorkflowSchema(path));
+
+  protected confirmDelete(): void {
+    const w = window.confirm('Are you sure you want to delete this approval?');
+
+    if(w){
+      const id = this.form.id().value();
+
+      if(id == null){
+        throw new Error(`Attemping to delete approval ${this.form.title().value()} without valid id.`)
+      }
+
+      this.deleteApproval.emit(id);
+    }
+  }
 
   protected cancel(): void {
     // [TODO] Should be checking dirty status instead of touched, but it doesn't appear to be working

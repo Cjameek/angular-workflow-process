@@ -57,6 +57,7 @@ const DUMMY_APPROVAL = {
           <approval-workflow 
             [state]="approval().value()"
             (saveApproval)="updateApproval($event)" 
+            (deleteApproval)="deleteApproval($event)" 
           />
         }
       </div>
@@ -105,7 +106,6 @@ export class App {
 
     this.form.approvals().value.update((arr) => [approval, ...arr]);
     this.stagingApproval.set(null);
-    // this.localStorageService.setItem(LOCAL_STORAGE_KEY, this.form().value());
   }
   
   updateApproval(approval: ApprovalWorkflow): void {
@@ -117,6 +117,12 @@ export class App {
 
         return a;
       });
+    });
+  }
+
+  deleteApproval(approvalId: string): void {
+    this.form.approvals().value.update((arr) => {
+      return arr.filter((a) => a.id !== approvalId);
     });
   }
 
