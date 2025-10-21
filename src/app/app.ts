@@ -1,8 +1,10 @@
 import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
+
 import { ApprovalWorkflowComponent } from './approval-workflow';
 import { ApprovalWorkflow } from './approval-workflow.model';
 import { LocalStorageService } from './local-storage-service';
+import { AddWorkflowButton } from './add-workflow-button';
 
 export const createNewApprovalWorkflowState = (): ApprovalWorkflow => {
   return {
@@ -65,32 +67,13 @@ const LOCAL_STORAGE_KEY = 'approvals';
         }
       </div>
 
-      @let tempApproval = stagingApproval();
-      @if(!tempApproval){
-        <div class="flex flex-row gap-3 items-center border-2 border-gray-200 p-5 rounded-lg">
-          <p>Add a new approval</p>
-          <button 
-          type="button" 
-          class="ml-auto bg-gray-200 border-2 border-gray-200 p-2 rounded-lg font-bold cursor-pointer hover:bg-transparent"
-          (click)="stageApproval()">
-            + Add Approval
-          </button>
-        </div>
-      } @else {
-        <approval-workflow 
-          [isNewApproval]="true" 
-          [state]="tempApproval" 
-          (cancelApproval)="stagingApproval.set(null)" 
-          (saveApproval)="addApproval($event)" 
-        />
-      }
+      <add-workflow-button (saveNewApproval)="addApproval($event)" />
     </main>
   `,
-  imports: [ApprovalWorkflowComponent]
+  imports: [ApprovalWorkflowComponent, AddWorkflowButton]
 })
 export class App {
   readonly localStorageService = inject(LocalStorageService);
-  readonly stagingApproval = signal<ApprovalWorkflow | null>(null);
   readonly cachedApprovals = signal<{ approvals: ApprovalWorkflow[] }>(this.localStorageService.getItem(LOCAL_STORAGE_KEY) || {
     approvals: []
   });
@@ -100,15 +83,10 @@ export class App {
 
   readonly form = form<{ approvals: ApprovalWorkflow[] }>(this.formState);
 
-  stageApproval(): void {
-    this.stagingApproval.set(createNewApprovalWorkflowState());
-  }
-
   addApproval(approval: ApprovalWorkflow): void {
     approval.id = this.convertTitleStringToId(approval.title);
 
     this.form.approvals().value.update((arr) => [approval, ...arr]);
-    this.stagingApproval.set(null);
 
     this.localStorageService.setItem<{ approvals: ApprovalWorkflow[] }>(LOCAL_STORAGE_KEY, this.form().value());
   }
