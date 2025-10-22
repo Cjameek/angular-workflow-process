@@ -6,6 +6,8 @@ import { DropdownRequirementStatus } from "./controls/dropdown-requirement-statu
 import { DropdownUserSelection } from "./controls/dropdown-user-selection";
 import { DropdownRoleSelection } from "./controls/dropdown-role-selection";
 import { RadioGroupApproverType } from "./controls/radio-approver-type";
+import { WorkflowInputWrapper } from "./workflow-input-wrapper";
+import { ValueOfPropPipe } from "./pipes/value-of-prop-pipe";
 
 export interface User {
   name: string,
@@ -32,41 +34,24 @@ export interface Approver {
       <ul class="flex flex-col gap-2 ml-4 mt-4" aria-describedby="approvers-desc">
         @for(approver of approvers(); track $index){
           <workflow-list-item>
-            <div>
-              @if(editing()){
-                <dropdown-requirement-status [control]="approver.requirementStatus" />
-              } @else {
-                <span>{{ approver.requirementStatus().value() }}</span>
-              }
-            </div>
-
-            <div>
-              @if(editing()){
-                <radio-group-approver-type [control]="approver.type" (valueChanged)="approverTypeChanged($event, approver)" />
-              } @else {
-                <span>{{ approver.type().value() }}</span>
-              }
-            </div>
-
+            <workflow-input-wrapper [displayInput]="editing()" [text]="approver.requirementStatus().value()">
+              <dropdown-requirement-status [control]="approver.requirementStatus" />
+            </workflow-input-wrapper>
+            
+            <workflow-input-wrapper [displayInput]="editing()" [text]="approver.type().value()">
+              <radio-group-approver-type [control]="approver.type" (valueChanged)="approverTypeChanged($event, approver)" />
+            </workflow-input-wrapper>
             
             @if(!approver.user().hidden()){
-              <div class="block flex-1">
-                @if(editing()){
-                  <dropdown-user-selection [options]="users()" [control]="approver.user" />
-                } @else {
-                  <span>{{ approver.user().value()?.name }}</span>
-                }
-              </div>
+              <workflow-input-wrapper class="block flex-1" [displayInput]="editing()" [text]="approver.user().value() | valueOf: 'name'">
+                <dropdown-user-selection [options]="users()" [control]="approver.user" />
+              </workflow-input-wrapper>
             }
-
+            
             @if(!approver.role().hidden()){
-              <div class="block flex-1">
-                @if(editing()){
-                  <dropdown-role-selection [options]="roles()" [control]="approver.role" />
-                } @else {
-                  <span>{{ approver.role().value() }}</span>
-                }
-              </div>
+              <workflow-input-wrapper class="block flex-1" [displayInput]="editing()" [text]="approver.role().value() ?? ''">
+                <dropdown-role-selection [options]="roles()" [control]="approver.role" />
+              </workflow-input-wrapper>
             }
 
             @if(approvers()().value().length > 1){
@@ -92,7 +77,9 @@ export interface Approver {
   `,
   imports:[
     Control, 
+    ValueOfPropPipe,
     WorkflowListItem, 
+    WorkflowInputWrapper,
     DropdownRequirementStatus, 
     DropdownUserSelection, 
     DropdownRoleSelection, 

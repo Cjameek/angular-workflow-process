@@ -1,18 +1,20 @@
 import { Component, input } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { Control, FieldTree } from "@angular/forms/signals";
 import { WorkflowListItem } from "./workflow-list-item";
 import { RequirementStatus, AssignmentCondition, ComparisonOperator, GENERAL_ORDER_KEYS, GeneralOrderKeys } from "./approval-workflow.model";
 import { DropdownRuleProperty } from "./controls/dropdown-rule-property";
 import { RuleInputSwitch } from "./rule-input-switch";
-import { DropdownAssignmentCondition } from "./controls/dropdown-assignment-condition";
 import { DropdownRequirementStatus } from "./controls/dropdown-requirement-status";
+import { WorkflowInputWrapper } from "./workflow-input-wrapper";
+import { ValueOfPropPipe } from "./pipes/value-of-prop-pipe";
+
+export type RuleValueType = 'string' | 'number' | 'boolean';
 
 export interface RuleProperty {
   recordType: string,
   name: string,
-  type: 'string' | 'number' | 'boolean',
+  type: RuleValueType,
 }
 
 export interface ConditionRules {
@@ -44,25 +46,17 @@ export interface Rule extends ConditionRules {
               <!-- <dropdown-assignment-condition [control]="rule.assignmentCondition" /> -->
             }
   
-            <div>
-              @if(editing()){
-                <dropdown-requirement-status [control]="rule.requirementStatus" />
-              } @else {
-                <p>{{ rule.requirementStatus().value() }}</p>
-              }
-            </div>
-
-            <div>
-              @if(editing()){
-                <dropdown-rule-property 
-                  [control]="rule.property" 
-                  [options]="values()" 
-                  (valueChanged)="propertyValueChanged(rule)" 
-                />   
-              } @else {
-                <p>{{ rule.property().value()?.name }}</p>
-              }
-            </div>
+            <workflow-input-wrapper [displayInput]="editing()" [text]="rule.requirementStatus().value()">
+              <dropdown-requirement-status [control]="rule.requirementStatus" />
+            </workflow-input-wrapper>
+            
+            <workflow-input-wrapper [displayInput]="editing()" [text]="rule.property().value() | valueOf: 'name'">
+              <dropdown-rule-property 
+                [control]="rule.property" 
+                [options]="values()" 
+                (valueChanged)="propertyValueChanged(rule)" 
+              />   
+            </workflow-input-wrapper>
   
             @if(type){
               <rule-input-switch [rule]="rule" [type]="type" [editing]="editing()" />
@@ -85,10 +79,11 @@ export interface Rule extends ConditionRules {
   `,
   imports: [
     Control,
+    ValueOfPropPipe,
     FormsModule, 
     WorkflowListItem, 
+    WorkflowInputWrapper,
     DropdownRuleProperty, 
-    DropdownAssignmentCondition, 
     DropdownRequirementStatus, 
     RuleInputSwitch
   ],
