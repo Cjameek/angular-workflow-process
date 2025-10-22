@@ -3,7 +3,7 @@ import { form } from '@angular/forms/signals';
 
 import { ApprovalWorkflowComponent } from './approval-workflow';
 import { ApprovalWorkflow } from './approval-workflow.model';
-import { LocalStorageService } from './local-storage-service';
+import { LocalStorageService } from './services/local-storage-service';
 import { AddWorkflowButton } from './add-workflow-button';
 
 export const createNewApprovalWorkflowState = (): ApprovalWorkflow => {
