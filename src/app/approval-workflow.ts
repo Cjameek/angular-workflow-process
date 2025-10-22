@@ -54,6 +54,7 @@ export class ApprovalWorkflowComponent {
   readonly isEditing = linkedSignal(() => this.isNewApproval());
   readonly editingTitle = linkedSignal(() => this.isEditing());
   readonly formState = linkedSignal(() => this.state());
+  readonly currentlyEditing = output<boolean>();
   readonly cancelApproval = output<void>();
   readonly deleteApproval = output<string>();
   readonly saveApproval = output<ApprovalWorkflow>();
@@ -82,7 +83,7 @@ export class ApprovalWorkflowComponent {
       if(!w) return;
     }
 
-    this.isEditing.set(false);
+    this.updateEditingStatus(false);
     this.cancelApproval.emit();
   }
 
@@ -92,8 +93,13 @@ export class ApprovalWorkflowComponent {
 
     if(isValid){
       this.saveApproval.emit(this.form().value());
-      this.isEditing.set(false);
+      this.updateEditingStatus(false);
     }
+  }
+
+  private updateEditingStatus(isEditing: boolean): void {
+    this.isEditing.set(isEditing);
+    this.currentlyEditing.emit(isEditing);
   }
 
   private buildWorkflowSchema(path: FieldPath<ApprovalWorkflow>): void {
