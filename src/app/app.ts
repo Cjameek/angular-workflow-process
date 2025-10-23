@@ -5,6 +5,7 @@ import { ApprovalWorkflowComponent } from './approval-workflow';
 import { ApprovalWorkflow } from './approval-workflow.model';
 import { LocalStorageService } from './services/local-storage-service';
 import { AddWorkflowButton } from './add-workflow-button';
+import { WorkflowPageHeader } from './workflow-page-header';
 
 export const createNewApprovalWorkflowState = (): ApprovalWorkflow => {
   return {
@@ -56,21 +57,23 @@ const LOCAL_STORAGE_KEY = 'approvals';
 @Component({
   selector: 'app-root',
   template: `
-    <main class="max-w-3xl m-6">
-      <div class="flex flex-col gap-3 mb-6">
-        @for(approval of form.approvals; track $index){
-          <approval-workflow 
-            [state]="approval().value()"
-            (saveApproval)="updateApproval($event)" 
-            (deleteApproval)="deleteApproval($event)" 
-          />
-        }
-      </div>
+  <workflow-page-header [records]="form.approvals().value()" />
 
-      <add-workflow-button (saveNewApproval)="addApproval($event)" />
-    </main>
+  <main class="px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+      @for(approval of form.approvals; track $index){
+        <approval-workflow 
+          [state]="approval().value()"
+          (saveApproval)="updateApproval($event)" 
+          (deleteApproval)="deleteApproval($event)" 
+        />
+      }
+    </div>
+
+    <add-workflow-button (saveNewApproval)="addApproval($event)" />
+  </main>
   `,
-  imports: [ApprovalWorkflowComponent, AddWorkflowButton]
+  imports: [ApprovalWorkflowComponent, AddWorkflowButton, WorkflowPageHeader]
 })
 export class App {
   readonly localStorageService = inject(LocalStorageService);
