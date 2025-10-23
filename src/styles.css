@@ -2,6 +2,37 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Roboto", sans-serif;
+  --font-sans: "Inter", sans-serif;
   --font-mono: monospace;
+}
+
+@layer components {
+  .btn {
+    --_btn-bg-color: var(--color-blue-600);
+    --_btn-text-color: var(--color-white);
+
+    background-color: var(--_btn-bg-color);
+    color: var(--_btn-text-color);
+    padding-inline: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 2);
+    border-radius: var(--radius-lg);
+    font-weight: var(--font-weight-medium);
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-duration: var(--default-transition-duration);
+    transition-timing-function: var(--default-transition-timing-function);
+    cursor: pointer;
+
+    @variant hover {
+      --_btn-bg-color: var(--color-blue-700);
+    }
+    
+    &.secondary {
+      --_btn-bg-color: var(--color-blue-50);
+      --_btn-text-color: var(--color-blue-600);
+
+      @variant hover {
+        --_btn-bg-color: var(--color-blue-100);
+      }
+    }
+  }
 }
