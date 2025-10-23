@@ -3,9 +3,9 @@ import { form } from '@angular/forms/signals';
 
 import { ApprovalWorkflowComponent } from './approval-workflow';
 import { ApprovalWorkflow } from './approval-workflow.model';
-import { LocalStorageService } from './services/local-storage-service';
 import { AddWorkflowButton } from './add-workflow-button';
 import { WorkflowPageHeader } from './workflow-page-header';
+import { ApprovalWorkflowService } from './approval-workflow-service';
 
 export const createNewApprovalWorkflowState = (): ApprovalWorkflow => {
   return {
@@ -52,8 +52,6 @@ const DUMMY_APPROVAL = {
   nextApproval: null
 } as ApprovalWorkflow
 
-const LOCAL_STORAGE_KEY = 'approvals';
-
 @Component({
   selector: 'app-root',
   template: `
@@ -76,47 +74,20 @@ const LOCAL_STORAGE_KEY = 'approvals';
   imports: [ApprovalWorkflowComponent, AddWorkflowButton, WorkflowPageHeader]
 })
 export class App {
-  readonly localStorageService = inject(LocalStorageService);
-  readonly cachedApprovals = signal<{ approvals: ApprovalWorkflow[] }>(this.localStorageService.getItem(LOCAL_STORAGE_KEY) || {
-    approvals: []
-  });
-
-  // [TODO] simulate httpResource value 
-  readonly formState = linkedSignal(() => this.cachedApprovals());
-
+  private readonly workflowService = inject(ApprovalWorkflowService);
+  readonly formState = linkedSignal(() => this.workflowService.cachedApprovals());
+  
   readonly form = form<{ approvals: ApprovalWorkflow[] }>(this.formState);
 
   addApproval(approval: ApprovalWorkflow): void {
-    approval.id = this.convertTitleStringToId(approval.title);
-
-    this.form.approvals().value.update((arr) => [approval, ...arr]);
-
-    this.localStorageService.setItem<{ approvals: ApprovalWorkflow[] }>(LOCAL_STORAGE_KEY, this.form().value());
+    this.workflowService.addApproval(approval, this.form);
   }
   
   updateApproval(approval: ApprovalWorkflow): void {
-    this.form.approvals().value.update((arr) => {
-      return arr.map((a) => {
-        if(a.id == approval.id){
-          return approval;
-        }
-
-        return a;
-      });
-    });
-
-    this.localStorageService.setItem<{ approvals: ApprovalWorkflow[] }>(LOCAL_STORAGE_KEY, this.form().value());
+    this.workflowService.updateApproval(approval, this.form);
   }
-
+  
   deleteApproval(approvalId: string): void {
-    this.form.approvals().value.update((arr) => {
-      return arr.filter((a) => a.id !== approvalId);
-    });
-
-    this.localStorageService.setItem<{ approvals: ApprovalWorkflow[] }>(LOCAL_STORAGE_KEY, this.form().value());
-  }
-
-  private convertTitleStringToId(title: string): string {
-    return title.replace(' ', '_').toUpperCase();
+    this.workflowService.deleteApproval(approvalId, this.form);
   }
 }
