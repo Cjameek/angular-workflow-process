@@ -4,6 +4,10 @@ import { User } from "../../shared/data-access/models/user-model";
 import { Rule } from "../data-access/models/rule-model";
 
 export class ApprovalWorkflowUtils {
+  static convertTitleStringToId(title: string): string {
+    return title.replace(' ', '_').toUpperCase();
+  }
+  
   static createNewApprovalWorkflowState(): ApprovalWorkflow {
     return {
       id: null,

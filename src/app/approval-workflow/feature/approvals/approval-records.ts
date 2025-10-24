@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 
-import { AddWorkflowButton } from '../../../add-workflow-button';
 import { ApprovalWorkflowComponent } from '../approval/approval-workflow';
 import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
 import { ApprovalWorkflowService } from '../../data-access/services/approval-workflow-service';
@@ -12,15 +11,14 @@ import { ApprovalWorkflowService } from '../../data-access/services/approval-wor
       @for(approval of approvals(); track $index){
         <approval-workflow 
           [state]="approval"
-          (saveApproval)="updateApproval($event)" 
+          (cancelApproval)="cancelChanges()"
+          (saveApproval)="processApproval($event)" 
           (deleteApproval)="deleteApproval($event)" 
         />
       }
     </div>
-
-    <add-workflow-button (saveNewApproval)="addApproval($event)" />
   `,
-  imports: [ApprovalWorkflowComponent, AddWorkflowButton],
+  imports: [ApprovalWorkflowComponent],
   host: {
     'class': 'block px-8 py-6'
   }
@@ -29,12 +27,17 @@ export class ApprovalRecords {
   private readonly workflowService = inject(ApprovalWorkflowService);
   readonly approvals = this.workflowService.approvals;
 
-  addApproval(approval: ApprovalWorkflow): void {
-    this.workflowService.addApproval(approval);
+  cancelChanges(): void {
+    // Clear any staged approvals
+    this.workflowService.stagedApproval.set(null);
   }
-  
-  updateApproval(approval: ApprovalWorkflow): void {
-    this.workflowService.updateApproval(approval);
+
+  processApproval(approval: ApprovalWorkflow): void {
+    if(approval.id == null){
+      return this.workflowService.addApproval(approval);
+    }
+      
+    return this.workflowService.updateApproval(approval);
   }
   
   deleteApproval(approvalId: string): void {

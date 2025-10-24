@@ -1,9 +1,8 @@
-import { Component, input, linkedSignal, output } from '@angular/core';
+import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
 
 import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
 import { WorkflowTitle } from '../../ui/workflow-title/workflow-title';
-import { WorkflowProcessingButtons } from '../../ui/workflow-processing-buttons/workflow-processing-buttons';
 import { WorkflowApprovers } from '../approvers/workflow-approvers';
 import { WorkflowRules } from '../rules/workflow-rules';
 import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-options-menu';
@@ -17,7 +16,7 @@ import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-opt
       <div class="flex flex-row">
         <workflow-title 
           [title]="form.title" 
-          [editing]="isEditing()" 
+          [editing]="isEditing() || isNewApproval()" 
         />
 
         @if(!isNewApproval()){
@@ -32,11 +31,25 @@ import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-opt
 
       <ng-content select="[afterFields]" />
 
-      @if(isEditing()){
-        <workflow-processing-buttons 
-          (onCancel)="cancel()" 
-          (onSave)="save()"
-        />
+      @if(isEditing() || isNewApproval()){
+        <div class="flex flex-row justify-end gap-3">
+          <button 
+            id="cancelApprovalBtn"
+            type="button" 
+            class="btn secondary" 
+            (click)="cancel()"
+          >
+            Cancel
+          </button>
+          <button 
+            id="submitApprovalBtn"
+            class="btn" 
+            [attr.disabled]="form().invalid() ? true : null"
+            (click.prevent)="save()"
+          >
+            Save
+          </button>
+        </div>
       }
     </form>
   `,
@@ -44,8 +57,7 @@ import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-opt
     WorkflowTitle, 
     WorkflowRules,
     WorkflowApprovers,
-    WorkflowOptionsMenu, 
-    WorkflowProcessingButtons
+    WorkflowOptionsMenu
   ],
   host: {
     'class': 'block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow'
@@ -53,9 +65,8 @@ import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-opt
 })
 export class ApprovalWorkflowComponent {
   readonly state = input.required<ApprovalWorkflow>();
-  readonly isNewApproval = input<boolean>(false);
-  readonly isEditing = linkedSignal(() => this.isNewApproval());
-  readonly editingTitle = linkedSignal(() => this.isEditing());
+  readonly isNewApproval = computed<boolean>(() => this.state().id === null);
+  readonly isEditing = signal<boolean>(false);
   readonly formState = linkedSignal(() => this.state());
   readonly currentlyEditing = output<boolean>();
   readonly cancelApproval = output<void>();
@@ -68,7 +79,7 @@ export class ApprovalWorkflowComponent {
     const w = window.confirm('Are you sure you want to delete this approval?');
 
     if(w){
-      const id = this.form.id().value();
+      const id = this.form().value().id;
 
       if(id == null){
         throw new Error(`Attemping to delete approval ${this.form.title().value()} without valid id.`)
