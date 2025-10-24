@@ -1,7 +1,7 @@
 import { Component, output, signal } from '@angular/core';
-import { ApprovalWorkflow } from './approval-workflow.model';
-import { createNewApprovalWorkflowState } from './app';
-import { ApprovalWorkflowComponent } from './approval-workflow';
+import { ApprovalWorkflow } from './approval-workflow/data-access/models/approval-workflow.model';
+import { ApprovalWorkflowComponent } from './approval-workflow/feature/approval/approval-workflow';
+import { ApprovalWorkflowUtils } from './approval-workflow/utils/approval-workflow-utils';
 
 @Component({
   selector: 'add-workflow-button',
@@ -10,7 +10,7 @@ import { ApprovalWorkflowComponent } from './approval-workflow';
     @if(!tempApproval){
       <button 
       type="button" 
-      class="block w-full text-center bg-transparent border-2 border-dashed border-gray-200 p-2 rounded-lg cursor-pointer hover:bg-gray-200"
+      class="btn"
       (click)="stageApproval()">
         + Add Approval
       </button>
@@ -30,7 +30,7 @@ export class AddWorkflowButton {
   readonly saveNewApproval = output<ApprovalWorkflow>();
 
   stageApproval(): void {
-    this.stagingApproval.set(createNewApprovalWorkflowState());
+    this.stagingApproval.set(ApprovalWorkflowUtils.createNewApprovalWorkflowState());
   }
 
   saveStagedApproval(approval: ApprovalWorkflow): void {

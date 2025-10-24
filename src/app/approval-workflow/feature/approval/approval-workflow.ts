@@ -1,0 +1,151 @@
+import { Component, input, linkedSignal, output } from '@angular/core';
+import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
+
+import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
+import { WorkflowTitle } from '../../ui/workflow-title/workflow-title';
+import { WorkflowProcessingButtons } from '../../../workflow-processing-buttons';
+import { WorkflowApprovers } from '../approvers/workflow-approvers';
+import { WorkflowRules } from '../rules/workflow-rules';
+import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-options-menu';
+
+@Component({
+  selector: 'approval-workflow',
+  template: `
+    <form class="flex flex-col gap-3 justify-center p-6" (ngSubmit)="save()">
+      <ng-content select="[beforeFields]" />
+
+      <div class="flex flex-row">
+        <workflow-title 
+          [title]="form.title" 
+          [editing]="isEditing()" 
+        />
+
+        @if(!isNewApproval()){
+          <workflow-options-menu class="block ml-auto" (editApproval)="isEditing.set(true)" (deleteApproval)="confirmDelete()" />
+        }
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <workflow-rules [rules]="form.rules" [editing]="isEditing()" />
+        <workflow-approvers [approvers]="form.approvers" [editing]="isEditing()" />
+      </div>
+
+      <ng-content select="[afterFields]" />
+
+      @if(isEditing()){
+        <workflow-processing-buttons 
+          (onCancel)="cancel()" 
+          (onSave)="save()"
+        />
+      }
+    </form>
+  `,
+  imports: [
+    WorkflowTitle, 
+    WorkflowRules,
+    WorkflowApprovers,
+    WorkflowOptionsMenu, 
+    WorkflowProcessingButtons
+  ],
+  host: {
+    'class': 'block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow'
+  }
+})
+export class ApprovalWorkflowComponent {
+  readonly state = input.required<ApprovalWorkflow>();
+  readonly isNewApproval = input<boolean>(false);
+  readonly isEditing = linkedSignal(() => this.isNewApproval());
+  readonly editingTitle = linkedSignal(() => this.isEditing());
+  readonly formState = linkedSignal(() => this.state());
+  readonly currentlyEditing = output<boolean>();
+  readonly cancelApproval = output<void>();
+  readonly deleteApproval = output<string>();
+  readonly saveApproval = output<ApprovalWorkflow>();
+
+  readonly form = form(this.formState, (path) => this.buildWorkflowSchema(path));
+
+  protected confirmDelete(): void {
+    const w = window.confirm('Are you sure you want to delete this approval?');
+
+    if(w){
+      const id = this.form.id().value();
+
+      if(id == null){
+        throw new Error(`Attemping to delete approval ${this.form.title().value()} without valid id.`)
+      }
+
+      this.deleteApproval.emit(id);
+    }
+  }
+
+  protected cancel(): void {
+    // [TODO] Should be checking dirty status instead of touched, but it doesn't appear to be working
+    if(!this.isNewApproval() && this.form().touched()){
+      const w = window.confirm('Do you want to undo these changes?');
+  
+      if(!w) return;
+    }
+
+    this.updateEditingStatus(false);
+    this.cancelApproval.emit();
+  }
+
+  protected save(): void {
+    const isValid = this.form().valid();
+    const errors = this.form().errors();
+
+    if(isValid){
+      this.saveApproval.emit(this.form().value());
+      this.updateEditingStatus(false);
+    }
+  }
+
+  private updateEditingStatus(isEditing: boolean): void {
+    this.isEditing.set(isEditing);
+    this.currentlyEditing.emit(isEditing);
+  }
+
+  private buildWorkflowSchema(path: FieldPath<ApprovalWorkflow>): void {
+    minLength(path.title, 5, { message: 'Title must be at least 5 chars' }),
+    maxLength(path.title, 50, { message: 'Title cannot exceed 50 chars' }),
+    pattern(path.title, /^[a-zA-Z ]*$/, { message: 'Only alphabetical chars allowed' }),
+    validate(path.rules, (ctx) => {
+        const arr = ctx.value();
+
+        if (arr.length >= 1) {
+            return null;
+        }
+
+        return customError({
+            kind: 'minimum_rule_requirement',
+            message: `At least 1 rule required`,
+        });
+    }),
+    validate(path.approvers, (ctx) => {
+        const arr = ctx.value();
+
+        if (arr.length >= 1) {
+            return null;
+        }
+
+        return customError({
+            kind: 'minimum_approver_requirement',
+            message: `At least 1 approver required`,
+        });
+    }),
+    applyEach(path.rules, (ctx) => {
+      required(ctx.requirementStatus),
+      required(ctx.property),
+      required(ctx.value)
+      hidden(ctx.comparisonOperator, (c) => c.valueOf(ctx.property)?.type != 'number')
+      required(ctx.comparisonOperator, { when: (c) => c.valueOf(ctx.property)?.type == 'number' })
+    }),
+    applyEach(path.approvers, (ctx) => {
+      required(ctx.requirementStatus, { message: 'Must select a requirement status' }),
+      required(ctx.user, { when: (c) => c.valueOf(ctx.type) == 'USER', message: 'A user must be selected' }),
+      required(ctx.role, { when: (c) => c.valueOf(ctx.type) == 'ROLE', message: 'A role must be selected' }),
+      hidden(ctx.user, (c) => c.valueOf(ctx.type) != 'USER'),
+      hidden(ctx.role, (c) => c.valueOf(ctx.type) != 'ROLE')
+    })
+  }
+}

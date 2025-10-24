@@ -1,4 +1,4 @@
-import { Component, input, output } from "@angular/core";
+import { Component, output } from "@angular/core";
 
 @Component({
   selector: 'workflow-processing-buttons',
@@ -7,14 +7,14 @@ import { Component, input, output } from "@angular/core";
       <button 
         id="cancelApprovalBtn"
         type="button" 
-        class="px-3 py-2 border-2 border-gray-200 font-bold rounded-sm cursor-pointer" 
+        class="btn secondary" 
         (click)="onCancel.emit()"
       >
         Cancel
       </button>
       <button 
         id="submitApprovalBtn"
-        class="px-3 py-2 bg-gray-200 font-bold rounded-sm cursor-pointer" 
+        class="btn" 
         (click)="submitApproval($event)"
       >
         Save
