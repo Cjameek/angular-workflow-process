@@ -3,7 +3,7 @@ import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, 
 
 import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
 import { WorkflowTitle } from '../../ui/workflow-title/workflow-title';
-import { WorkflowProcessingButtons } from '../../../workflow-processing-buttons';
+import { WorkflowProcessingButtons } from '../../ui/workflow-processing-buttons/workflow-processing-buttons';
 import { WorkflowApprovers } from '../approvers/workflow-approvers';
 import { WorkflowRules } from '../rules/workflow-rules';
 import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-options-menu';
