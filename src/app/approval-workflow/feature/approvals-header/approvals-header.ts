@@ -5,12 +5,12 @@ import { ApprovalWorkflowService } from '../../data-access/services/approval-wor
 @Component({
   selector: 'approval-records-header',
   template: `
-    <page-header [headingText]="'Approval Records'" [records]="records" />
+    <page-header [headingText]="'Approval Records'" [records]="records()" />
   `,
   imports: [PageHeader]
 })
 export class ApprovalRecordsHeader {
   private readonly workflowService = inject(ApprovalWorkflowService);
 
-  readonly records = this.workflowService.cachedApprovals().approvals;
+  readonly records = this.workflowService.approvals;
 }

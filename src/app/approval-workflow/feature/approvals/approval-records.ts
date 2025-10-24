@@ -1,5 +1,4 @@
-import { Component, inject, linkedSignal } from '@angular/core';
-import { form } from '@angular/forms/signals';
+import { Component, inject } from '@angular/core';
 
 import { AddWorkflowButton } from '../../../add-workflow-button';
 import { ApprovalWorkflowComponent } from '../approval/approval-workflow';
@@ -10,9 +9,9 @@ import { ApprovalWorkflowService } from '../../data-access/services/approval-wor
   selector: 'approval-records',
   template: `
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-      @for(approval of form.approvals; track $index){
+      @for(approval of approvals(); track $index){
         <approval-workflow 
-          [state]="approval().value()"
+          [state]="approval"
           (saveApproval)="updateApproval($event)" 
           (deleteApproval)="deleteApproval($event)" 
         />
@@ -28,20 +27,17 @@ import { ApprovalWorkflowService } from '../../data-access/services/approval-wor
 })
 export class ApprovalRecords {
   private readonly workflowService = inject(ApprovalWorkflowService);
-
-  readonly formState = linkedSignal(() => this.workflowService.cachedApprovals());
-
-  readonly form = form<{ approvals: ApprovalWorkflow[] }>(this.formState);
+  readonly approvals = this.workflowService.approvals;
 
   addApproval(approval: ApprovalWorkflow): void {
-    this.workflowService.addApproval(approval, this.form);
+    this.workflowService.addApproval(approval);
   }
   
   updateApproval(approval: ApprovalWorkflow): void {
-    this.workflowService.updateApproval(approval, this.form);
+    this.workflowService.updateApproval(approval);
   }
   
   deleteApproval(approvalId: string): void {
-    this.workflowService.deleteApproval(approvalId, this.form);
+    this.workflowService.deleteApproval(approvalId);
   }
 }
