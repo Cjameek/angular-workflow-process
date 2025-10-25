@@ -1,0 +1,98 @@
+<div class="table-container">
+  <div class="table-header">
+    <h2>Approval Workflows</h2>
+  </div>
+
+  <cdk-table 
+    [dataSource]="dataSource()" 
+    cdkDropList
+    (cdkDropListDropped)="drop($event)"
+    class="approval-table">
+    
+    <ng-container cdkColumnDef="drag">
+      <cdk-header-cell *cdkHeaderCellDef class="drag-column"></cdk-header-cell>
+      <cdk-cell *cdkCellDef="let row" class="drag-column">
+        <div class="drag-handle" cdkDragHandle>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="4" cy="4" r="1.5" fill="#94A3B8"/>
+            <circle cx="12" cy="4" r="1.5" fill="#94A3B8"/>
+            <circle cx="4" cy="8" r="1.5" fill="#94A3B8"/>
+            <circle cx="12" cy="8" r="1.5" fill="#94A3B8"/>
+            <circle cx="4" cy="12" r="1.5" fill="#94A3B8"/>
+            <circle cx="12" cy="12" r="1.5" fill="#94A3B8"/>
+          </svg>
+        </div>
+      </cdk-cell>
+    </ng-container>
+
+    <ng-container cdkColumnDef="approvalName">
+      <cdk-header-cell *cdkHeaderCellDef>Approval Name</cdk-header-cell>
+      <cdk-cell *cdkCellDef="let row">
+        <span class="approval-name">{{ row.approvalName }}</span>
+      </cdk-cell>
+    </ng-container>
+
+    <ng-container cdkColumnDef="requiredRules">
+      <cdk-header-cell *cdkHeaderCellDef>Required Rules</cdk-header-cell>
+      <cdk-cell *cdkCellDef="let row">
+        <rules-list [rules]="row.requiredRules" />
+      </cdk-cell>
+    </ng-container>
+    
+    <ng-container cdkColumnDef="optionalRules">
+      <cdk-header-cell *cdkHeaderCellDef>Optional Rules</cdk-header-cell>
+      <cdk-cell *cdkCellDef="let row">
+        <rules-list [rules]="row.optionalRules" />
+      </cdk-cell>
+    </ng-container>
+
+    <ng-container cdkColumnDef="approvers">
+      <cdk-header-cell *cdkHeaderCellDef>Approvers</cdk-header-cell>
+      <cdk-cell *cdkCellDef="let row">
+        <approvers-list [approvers]="row.approvers" />
+      </cdk-cell>
+    </ng-container>
+
+    <ng-container cdkColumnDef="actions">
+      <cdk-header-cell *cdkHeaderCellDef class="actions-column">Actions</cdk-header-cell>
+      <cdk-cell *cdkCellDef="let row" class="actions-column">
+        <button 
+          class="kebab-menu-button" 
+          [cdkMenuTriggerFor]="menu"
+          aria-label="Open menu">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="3" r="1.5" fill="currentColor"/>
+            <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+            <circle cx="8" cy="13" r="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+
+        <ng-template #menu>
+          <div class="menu-dropdown" cdkMenu>
+            <button cdkMenuItem (click)="onEdit(row)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M11.5 2L14 4.5L5 13.5L2 14L2.5 11L11.5 2Z" stroke="currentColor" fill="none"/>
+              </svg>
+              Edit
+            </button>
+            <button cdkMenuItem (click)="onDelete(row)" class="delete-item">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 4H13M5 4V3H11V4M6 7V11M10 7V11M4 4L5 13H11L12 4" stroke="currentColor" fill="none"/>
+              </svg>
+              Delete
+            </button>
+          </div>
+        </ng-template>
+      </cdk-cell>
+    </ng-container>
+
+    <cdk-header-row *cdkHeaderRowDef="displayedColumns"></cdk-header-row>
+
+    <cdk-row 
+      *cdkRowDef="let row; columns: displayedColumns;" 
+      cdkDrag
+      [cdkDragData]="row"
+      class="table-row">
+    </cdk-row>
+  </cdk-table>
+</div>

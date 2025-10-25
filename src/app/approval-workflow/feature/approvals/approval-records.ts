@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { ApprovalWorkflowComponent } from '../approval/approval-workflow';
 import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
 import { ApprovalWorkflowService } from '../../data-access/services/approval-workflow-service';
+import { ApprovalTableComponent } from '../approval-table/approval-table';
 
 @Component({
   selector: 'approval-records',
@@ -17,8 +18,10 @@ import { ApprovalWorkflowService } from '../../data-access/services/approval-wor
         />
       }
     </div>
+
+    <approval-table />
   `,
-  imports: [ApprovalWorkflowComponent],
+  imports: [ApprovalWorkflowComponent, ApprovalTableComponent],
   host: {
     'class': 'block px-8 py-6'
   }
