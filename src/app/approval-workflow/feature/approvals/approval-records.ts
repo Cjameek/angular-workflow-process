@@ -18,10 +18,8 @@ import { ApprovalTableComponent } from '../approval-table/approval-table';
         />
       }
     </div>
-
-    <approval-table />
   `,
-  imports: [ApprovalWorkflowComponent, ApprovalTableComponent],
+  imports: [ApprovalWorkflowComponent],
   host: {
     'class': 'block px-8 py-6'
   }

@@ -1,15 +1,13 @@
 import { Component } from '@angular/core';
 
-import { ApprovalRecords } from './approval-workflow/feature/approvals/approval-records';
-import { ApprovalRecordsHeader } from './approval-workflow/feature/approvals-header/approvals-header';
+import { ApprovalTableComponent } from './approval-workflow/feature/approval-table/approval-table';
 
 @Component({
   selector: 'app-root',
   template: `
-    <approval-records-header />
-    <approval-records />
+    <approval-table />
   `,
-  imports: [ApprovalRecords, ApprovalRecordsHeader]
+  imports: [ApprovalTableComponent]
 })
 export class App {
 }

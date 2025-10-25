@@ -8,6 +8,7 @@ import { Rule } from '../../data-access/models/rule-model';
 import { Approver } from '../../data-access/models/approver-model';
 import { ApproversList } from '../../ui/approvers-list/approvers-list';
 import { RulesList } from '../../ui/rules-list/rules-list';
+import { ApprovalRecordsHeader } from '../approvals-header/approvals-header';
 
 export interface ApprovalRow {
   id: string;
@@ -27,6 +28,7 @@ export interface ApprovalRow {
     CdkMenu,
     CdkMenuItem,
     CdkMenuTrigger,
+    ApprovalRecordsHeader,
     ApproversList,
     RulesList
   ],
