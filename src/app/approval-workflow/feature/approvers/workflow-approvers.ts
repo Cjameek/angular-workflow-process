@@ -1,14 +1,12 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { FieldTree } from '@angular/forms/signals';
-import { Dialog, DialogModule } from '@angular/cdk/dialog';
-import { filter } from 'rxjs';
 
 import { EmptySelectionArea } from '../../../shared/ui/empty-selection-list/empty-selection-area';
 import { ApproversList } from '../../ui/approvers-list/approvers-list';
 import { ApprovalWorkflowUtils } from '../../utils/approval-workflow-utils';
-import { ApproverFormDialog } from '../../ui/approver-form-dialog/approver-form-dialog';
 import { User } from '../../../shared/data-access/models/user-model';
 import { Approver } from '../../data-access/models/approver-model';
+import { DialogService } from '../../data-access/services/dialog-service';
 
 @Component({
   selector: 'workflow-approvers',
@@ -46,10 +44,10 @@ import { Approver } from '../../data-access/models/approver-model';
       }
     </section>
   `,
-  imports: [ApproversList, EmptySelectionArea, DialogModule],
+  imports: [ApproversList, EmptySelectionArea],
 })
 export class WorkflowApprovers {
-  private readonly dialog = inject(Dialog);
+  private readonly dialogService = inject(DialogService);
   readonly approvers = input.required<FieldTree<Approver[], string | number>>();
   readonly editing = input<boolean>(false);
   readonly users = input<User[]>([
@@ -82,17 +80,10 @@ export class WorkflowApprovers {
   }
 
   openDialog(approver?: Approver): void {
-    const dialogRef = this.dialog.open<Approver>(ApproverFormDialog, {
-      minWidth: '400px',
-      data: {
-        approver: approver !== undefined ? approver : null,
-        users: this.availableUsers(),
-        roles: this.availableRoles(),
-      }
-    });
-
-    dialogRef.closed.pipe(
-      filter(approver => approver != undefined && approver != null)
+    this.dialogService.openAddApproverDialog(
+      approver,
+      this.availableUsers(),
+      this.availableRoles(),
     ).subscribe(approver => this.addApprover(approver));
   }
 }

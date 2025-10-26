@@ -1,13 +1,11 @@
 import { Component, inject, input } from '@angular/core';
 import { FieldTree } from '@angular/forms/signals';
-import { Dialog, DialogModule } from '@angular/cdk/dialog';
-import { filter } from 'rxjs';
 
-import { RuleFormDialog } from '../../ui/rule-form-dialog/rule-form-dialog';
 import { GENERAL_ORDER_KEYS } from '../../data-access/models/approval-workflow.model';
 import { EmptySelectionArea } from '../../../shared/ui/empty-selection-list/empty-selection-area';
 import { RulesList } from '../../ui/rules-list/rules-list';
 import { Rule } from '../../data-access/models/rule-model';
+import { DialogService } from '../../data-access/services/dialog-service';
 
 @Component({
   selector: 'workflow-rules',
@@ -46,10 +44,10 @@ import { Rule } from '../../data-access/models/rule-model';
       }
     </section>
   `,
-  imports: [DialogModule, RulesList, EmptySelectionArea],
+  imports: [RulesList, EmptySelectionArea],
 })
 export class WorkflowRules {
-  private readonly dialog = inject(Dialog);
+  private readonly dialogService = inject(DialogService);
   readonly rules = input.required<FieldTree<Rule[], string>>();
   readonly editing = input<boolean>(false);
   
@@ -69,16 +67,9 @@ export class WorkflowRules {
   }
 
   openDialog(rule?: Rule): void {
-    const dialogRef = this.dialog.open<Rule>(RuleFormDialog, {
-      minWidth: '400px',
-      data: {
-        rule: rule !== undefined ? rule : null,
-        values: GENERAL_ORDER_KEYS
-      }
-    });
-
-    dialogRef.closed.pipe(
-      filter(rule => rule != undefined && rule != null)
+    this.dialogService.openAddRuleDialog(
+      rule, 
+      GENERAL_ORDER_KEYS
     ).subscribe(rule => this.addRule(rule));
   }
 }
