@@ -9,7 +9,6 @@ export interface RuleProperty {
 }
 
 export interface ConditionRules {
-  requirementStatus: RequirementStatus,
   assignmentCondition: AssignmentCondition | null,
   comparisonOperator: ComparisonOperator | null,
 }

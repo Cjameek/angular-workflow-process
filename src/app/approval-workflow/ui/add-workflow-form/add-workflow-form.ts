@@ -1,103 +1,107 @@
-import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { applyEach, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
+import { Component, input, linkedSignal, output } from '@angular/core';
+import { applyEach, Control, customError, FieldPath, form, hidden, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
 
 import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
-import { WorkflowTitle } from '../../ui/workflow-title/workflow-title';
-import { WorkflowApprovers } from '../approvers/workflow-approvers';
-import { WorkflowRules } from '../rules/workflow-rules';
-import { WorkflowOptionsMenu } from '../../ui/workflow-options-menu/workflow-options-menu';
+import { WorkflowApprovers } from '../../feature/approvers/workflow-approvers';
+import { WorkflowRules } from '../../feature/rules/workflow-rules';
 
 @Component({
-  selector: 'approval-workflow',
+  selector: 'add-workflow-form',
   template: `
     <form class="flex flex-col gap-3 justify-center p-6" (ngSubmit)="save()">
-      <ng-content select="[beforeFields]" />
-
-      <div class="flex flex-row">
-        <workflow-title 
-          [title]="form.title" 
-          [editing]="isEditing() || isNewApproval()" 
-        />
-
-        @if(!isNewApproval()){
-          <workflow-options-menu class="block ml-auto" (editApproval)="isEditing.set(true)" (deleteApproval)="confirmDelete()" />
-        }
+      <div class="flex flex-col gap-2">
+        <label class="block font-medium mb-2" [attr.id]="form.title().name() + '-label'" [attr.for]="form.title().name()">Workflow Title</label>
+        <input 
+          [attr.id]="form.title().name()" 
+          type="text" 
+          class="border border-gray-200 px-3 py-2 rounded-sm"
+          [control]="form.title"
+          aria-describedby="workflow-title-desc"
+        >
+        <small id="workflow-title-desc">The title will be used to generate a unique id.</small>
+        <div class="flex flex-col">
+          @if(form.title().errors().length > 0 && form.title().touched()){
+            @for(error of form.title().errors(); track $index) {
+              <small class="error">{{ error.message }}</small>
+            }
+          }
+        </div>
       </div>
+
+      <fieldset>
+        <legend class="block font-medium mb-2">Requirement Status</legend>
+        <div class="flex gap-2">
+          <input 
+            type="radio" 
+            [control]="form.requirementStatus"
+            id="requirementStatus-required" 
+            name="requirementStatus" 
+            [value]="'REQUIRED'"
+          />
+          <label for="requirementStatus-required">REQUIRED</label>
+        </div>
+        <div class="flex gap-2">
+          <input 
+            type="radio"
+            [control]="form.requirementStatus"
+            id="requirementStatus-optional" 
+            name="requirementStatus" 
+            [value]="'OPTIONAL'"
+          />
+          <label for="requirementStatus-optional">OPTIONAL</label>
+        </div>
+      </fieldset>
 
       <div class="flex flex-col gap-3">
-        <workflow-rules [rules]="form.rules" [editing]="isEditing()" />
-        <workflow-approvers [approvers]="form.approvers" [editing]="isEditing()" />
+        <workflow-rules [rules]="form.rules" />
+        <workflow-approvers [approvers]="form.approvers" />
       </div>
 
-      <ng-content select="[afterFields]" />
-
-      @if(isEditing() || isNewApproval()){
-        <div class="flex flex-row justify-end gap-3">
-          <button 
-            id="cancelApprovalBtn"
-            type="button" 
-            class="btn secondary" 
-            (click)="cancel()"
-          >
-            Cancel
-          </button>
-          <button 
-            id="submitApprovalBtn"
-            class="btn" 
-            [attr.disabled]="form().invalid() ? true : null"
-            (click.prevent)="save()"
-          >
-            Save
-          </button>
-        </div>
-      }
+      <div class="flex flex-row justify-end gap-3">
+        <button 
+          id="cancelApprovalBtn"
+          type="button" 
+          class="btn secondary" 
+          (click)="cancelApproval.emit()"
+        >
+          Cancel
+        </button>
+        <button 
+          id="submitApprovalBtn"
+          class="btn" 
+          [attr.disabled]="form().invalid() ? true : null"
+          (click.prevent)="save()"
+        >
+          Save
+        </button>
+      </div>
     </form>
   `,
   imports: [
-    WorkflowTitle, 
+    Control,
     WorkflowRules,
-    WorkflowApprovers,
-    WorkflowOptionsMenu
+    WorkflowApprovers
   ],
   host: {
     'class': 'block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow'
   }
 })
-export class ApprovalWorkflowComponent {
+export class AddWorkflowForm {
   readonly state = input.required<ApprovalWorkflow>();
-  readonly isNewApproval = computed<boolean>(() => this.state().id === null);
-  readonly isEditing = signal<boolean>(false);
   readonly formState = linkedSignal(() => this.state());
-  readonly currentlyEditing = output<boolean>();
   readonly cancelApproval = output<void>();
-  readonly deleteApproval = output<string>();
   readonly saveApproval = output<ApprovalWorkflow>();
 
   readonly form = form(this.formState, (path) => this.buildWorkflowSchema(path));
 
-  protected confirmDelete(): void {
-    const w = window.confirm('Are you sure you want to delete this approval?');
-
-    if(w){
-      const id = this.form().value().id;
-
-      if(id == null){
-        throw new Error(`Attemping to delete approval ${this.form.title().value()} without valid id.`)
-      }
-
-      this.deleteApproval.emit(id);
-    }
-  }
-
   protected cancel(): void {
     // [TODO] Should be checking dirty status instead of touched, but it doesn't appear to be working
-    if(!this.isNewApproval() && this.form().touched()){
+    if(this.form().touched()){
       const w = window.confirm('Do you want to undo these changes?');
   
       if(!w) return;
     }
 
-    this.updateEditingStatus(false);
     this.cancelApproval.emit();
   }
 
@@ -107,16 +111,11 @@ export class ApprovalWorkflowComponent {
 
     if(isValid){
       this.saveApproval.emit(this.form().value());
-      this.updateEditingStatus(false);
     }
   }
 
-  private updateEditingStatus(isEditing: boolean): void {
-    this.isEditing.set(isEditing);
-    this.currentlyEditing.emit(isEditing);
-  }
-
   private buildWorkflowSchema(path: FieldPath<ApprovalWorkflow>): void {
+    required(path.requirementStatus),
     minLength(path.title, 5, { message: 'Title must be at least 5 chars' }),
     maxLength(path.title, 50, { message: 'Title cannot exceed 50 chars' }),
     pattern(path.title, /^[a-zA-Z ]*$/, { message: 'Only alphabetical chars allowed' }),

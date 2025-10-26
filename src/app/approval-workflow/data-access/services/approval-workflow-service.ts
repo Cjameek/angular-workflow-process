@@ -17,18 +17,8 @@ export class ApprovalWorkflowService {
   });
 
   readonly isEditing = signal<boolean>(false);
-  readonly stagedApproval = signal<ApprovalWorkflow | null>(null);
 
-  private readonly _approvals = linkedSignal(() => {
-    const approvals = this.cachedApprovals().approvals;
-    const stagedApproval = this.stagedApproval();
-
-    if(stagedApproval !== null){
-      return [stagedApproval, ...approvals];
-    }
-
-    return approvals;
-  });
+  private readonly _approvals = linkedSignal(() => this.cachedApprovals().approvals);
 
   readonly approvals = this._approvals.asReadonly();
 
@@ -36,8 +26,6 @@ export class ApprovalWorkflowService {
     if(approval.id == null){
       approval.id = ApprovalWorkflowUtils.convertTitleStringToId(approval.title);
     }
-
-    this.stagedApproval.set(null);
 
     this._approvals.update((arr) => [approval, ...arr]);
 

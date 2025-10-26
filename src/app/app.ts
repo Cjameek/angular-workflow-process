@@ -1,13 +1,16 @@
 import { Component } from '@angular/core';
 
-import { ApprovalTableComponent } from './approval-workflow/feature/approval-table/approval-table';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   template: `
-    <approval-table />
+    <router-outlet />
   `,
-  imports: [ApprovalTableComponent]
+  imports: [RouterOutlet],
+  host: {
+    'class': 'block m-8'
+  }
 })
 export class App {
 }

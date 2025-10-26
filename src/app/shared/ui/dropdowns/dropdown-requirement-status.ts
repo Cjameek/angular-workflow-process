@@ -24,7 +24,7 @@ import { REQUIREMENT_STATUS, RequirementStatus } from '../../../approval-workflo
   `
 })
 export class DropdownRequirementStatus implements FormValueControl<RequirementStatus> {
-  readonly value = model<RequirementStatus>('REQUIRE');
+  readonly value = model<RequirementStatus>('REQUIRED');
   readonly options = input<RequirementStatus[]>(REQUIREMENT_STATUS);
   readonly name = input<string>('');
   readonly disabled = input<boolean>(false);

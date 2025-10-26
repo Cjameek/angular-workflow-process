@@ -13,13 +13,12 @@ import { ApprovalRecordsHeader } from '../approvals-header/approvals-header';
 export interface ApprovalRow {
   id: string;
   approvalName: string;
-  requiredRules: Rule[];
-  optionalRules: Rule[];
+  rules: Rule[];
   approvers: Approver[];
 }
 
 @Component({
-  selector: 'approval-table',
+  selector: 'approval-table-page',
   imports: [
     CommonModule,
     CdkTableModule,
@@ -35,14 +34,13 @@ export interface ApprovalRow {
   templateUrl: './approval-table.html',
   styleUrls: ['./approval-table.css']
 })
-export class ApprovalTableComponent {
+export class ApprovalTablePage {
   private readonly workflowService = inject(ApprovalWorkflowService);
 
   readonly displayedColumns: string[] = [
     'drag',
     'approvalName',
-    'requiredRules',
-    'optionalRules',
+    'rules',
     'approvers',
     'actions'
   ];
@@ -53,8 +51,6 @@ export class ApprovalTableComponent {
 
     if(currentApprovals.length > 0){
       return currentApprovals.map((a) => {
-        const requiredRules = a.rules.filter((r) => r.requirementStatus == 'REQUIRED');
-        const optionalRules = a.rules.filter((r) => r.requirementStatus == 'OPTIONAL');
 
         if(a.id == null){
           throw new Error('Id should not be null');
@@ -63,8 +59,7 @@ export class ApprovalTableComponent {
         const row: ApprovalRow = {
           id: a.id,
           approvalName: a.title,
-          requiredRules,
-          optionalRules,
+          rules: a.rules,
           approvers: a.approvers
         }
         

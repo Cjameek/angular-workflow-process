@@ -26,21 +26,20 @@
     <ng-container cdkColumnDef="approvalName">
       <cdk-header-cell *cdkHeaderCellDef>Approval Name</cdk-header-cell>
       <cdk-cell *cdkCellDef="let row">
-        <span class="approval-name">{{ row.approvalName }}</span>
+        <div class="flex items-center">
+            <div class="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+            <div>
+                <div class="text-sm font-medium text-gray-900">{{ row.approvalName }}</div>
+                <!-- <div class="text-sm text-gray-500">Step 1 in approval chain</div> -->
+            </div>
+        </div>
       </cdk-cell>
     </ng-container>
 
-    <ng-container cdkColumnDef="requiredRules">
-      <cdk-header-cell *cdkHeaderCellDef>Required Rules</cdk-header-cell>
+    <ng-container cdkColumnDef="rules">
+      <cdk-header-cell *cdkHeaderCellDef>Rules</cdk-header-cell>
       <cdk-cell *cdkCellDef="let row">
-        <rules-list [rules]="row.requiredRules" />
-      </cdk-cell>
-    </ng-container>
-    
-    <ng-container cdkColumnDef="optionalRules">
-      <cdk-header-cell *cdkHeaderCellDef>Optional Rules</cdk-header-cell>
-      <cdk-cell *cdkCellDef="let row">
-        <rules-list [rules]="row.optionalRules" />
+        <rules-list [rules]="row.rules" />
       </cdk-cell>
     </ng-container>
 

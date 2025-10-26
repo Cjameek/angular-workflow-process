@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ApprovalTablePage } from './approval-table';
+import { AddWorkflow } from './add-workflow';
 
-describe('ApprovalTableComponent', () => {
-  let component: ApprovalTablePage;
-  let fixture: ComponentFixture<ApprovalTablePage>;
+describe('AddWorkflow', () => {
+  let component: AddWorkflow;
+  let fixture: ComponentFixture<AddWorkflow>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ApprovalTablePage]
+      imports: [AddWorkflow]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ApprovalTablePage);
+    fixture = TestBed.createComponent(AddWorkflow);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -14,26 +14,22 @@ import { Approver } from '../../data-access/models/approver-model';
   selector: 'workflow-approvers',
   template: `
     <section>
-      <div class="flex flex-row justify-between items-center">
-        <h3 class="text-sm font-medium text-gray-700 mb-2">Approvers ({{ approvers()().value().length }})</h3>
-
-        @if(editing()){
-          <button 
-            type="button" 
-            class="flex justify-center items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium cursor-pointer" 
-            (click)="openDialog()"
-          >
-            <span class="flex justify-center h-[10px]">
-              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                <path fill="currentColor" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"></path>
-              </svg>
-            </span>
-            <span>Add Approver</span>
-          </button>
-        }
-      </div>
+      <h3 class="font-medium text-gray-700 mb-2">Approvers ({{ approvers()().value().length }})</h3>
       @if(approvers()().value().length > 0){
         <approvers-list [approvers]="approvers()().value()" />
+
+        <button 
+          type="button" 
+          class="flex justify-center items-center gap-1 mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer" 
+          (click)="openDialog()"
+        >
+          <span class="flex justify-center h-[10px]">
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+              <path fill="currentColor" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"></path>
+            </svg>
+          </span>
+          <span>Add Approver</span>
+        </button>
       } @else {
         <empty-selection-area [title]="'No approvers assigned'">
           <span beforeTitle class="flex justify-center text-gray-400 text-xl mb-2 h-[1em]">

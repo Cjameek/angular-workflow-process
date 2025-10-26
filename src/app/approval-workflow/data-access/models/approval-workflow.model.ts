@@ -35,17 +35,18 @@ export const GENERAL_ORDER_KEYS: GeneralOrderKeys[] = [
   },
 ];
 
-export const REQUIREMENT_STATUS = ['REQUIRE', 'OPTIONAL'];
-export const ASSIGNMENT_CONDITION = ['OR', 'AND'];
-export const COMPARISON_OPERATOR = ['GREATER', 'EQUAL', 'LESS'];
+export type RequirementStatus = 'REQUIRED' | 'OPTIONAL';
+export type AssignmentCondition = 'OR' | 'AND';
+export type ComparisonOperator = 'GREATER' | 'EQUAL' | 'LESS';
 
-export type RequirementStatus = typeof REQUIREMENT_STATUS[number];
-export type AssignmentCondition = typeof ASSIGNMENT_CONDITION[number];
-export type ComparisonOperator = typeof COMPARISON_OPERATOR[number];
+export const REQUIREMENT_STATUS = ['REQUIRED', 'OPTIONAL'] as RequirementStatus[];
+export const ASSIGNMENT_CONDITION = ['OR', 'AND'] as AssignmentCondition[];
+export const COMPARISON_OPERATOR = ['GREATER', 'EQUAL', 'LESS'] as ComparisonOperator[];
 
 export interface ApprovalWorkflow {
   id: string | null,
   title: string,
+  requirementStatus: RequirementStatus,
   rules: Rule[],
   approvers: Approver[],
   prevApproval: NameIdPair<string> | null,

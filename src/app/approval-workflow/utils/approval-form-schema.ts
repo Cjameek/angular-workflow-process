@@ -11,7 +11,6 @@ export const approvalWorkflowSchema = schema<ApprovalWorkflow>((path) => {
   validateMinArray(path.rules, 1),
   validateMinArray(path.approvers, 1),
   applyEach(path.rules, (ctx) => {
-    required(ctx.requirementStatus),
     required(ctx.property),
     required(ctx.value)
     hidden(ctx.comparisonOperator, (c) => c.valueOf(ctx.property)?.type != 'number')
@@ -35,7 +34,6 @@ export const approverSchema = schema<Approver>((path) => {
 });
 
 export const ruleSchema = schema<Rule>((path) => {
-  required(path.requirementStatus, { message: (ctx) => validationMessageRequired(ctx) }),
   required(path.description, { message: (ctx) => validationMessageRequired(ctx) }),
   maxLength(path.description, 50, { message: (ctx) => validationMessageMaxLength(ctx) }),
   required(path.property, { message: (ctx) => validationMessageRequired(ctx) }),

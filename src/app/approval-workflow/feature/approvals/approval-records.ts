@@ -3,7 +3,6 @@ import { Component, inject } from '@angular/core';
 import { ApprovalWorkflowComponent } from '../approval/approval-workflow';
 import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
 import { ApprovalWorkflowService } from '../../data-access/services/approval-workflow-service';
-import { ApprovalTableComponent } from '../approval-table/approval-table';
 
 @Component({
   selector: 'approval-records',
@@ -30,7 +29,6 @@ export class ApprovalRecords {
 
   cancelChanges(): void {
     // Clear any staged approvals
-    this.workflowService.stagedApproval.set(null);
   }
 
   processApproval(approval: ApprovalWorkflow): void {

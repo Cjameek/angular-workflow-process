@@ -12,6 +12,7 @@ export class ApprovalWorkflowUtils {
     return {
       id: null,
       title: '',
+      requirementStatus: 'REQUIRED',
       rules: [],
       approvers: [],
       prevApproval: null,
@@ -59,7 +60,7 @@ export class ApprovalWorkflowUtils {
   static createNewApprover(id: string): Approver {
     return {
       id,
-      requirementStatus: 'REQUIRE',
+      requirementStatus: 'REQUIRED',
       type: 'USER',
       user: null,
       role: null

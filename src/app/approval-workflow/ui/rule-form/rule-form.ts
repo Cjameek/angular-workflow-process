@@ -13,8 +13,6 @@ import { ApprovalWorkflowUtils } from "../../utils/approval-workflow-utils";
     <p id="rules-desc" class="sr-only">Create one or more rules. Each rule contains a requirement status, a property, and a value.</p>
 
     <form class="flex flex-col gap-3" (submit.prevent)="saveRule()" aria-describedby="rules-desc">
-      <dropdown-requirement-status [control]="ruleForm.requirementStatus" />
-
       <div>
         <label class="block font-medium mb-2" [attr.for]="ruleForm.description().name()">Description</label>
         <textarea 
@@ -101,7 +99,6 @@ export class RuleForm {
   private readonly formState = signal<Rule>(this.formData() ?? ApprovalWorkflowUtils.createNewRule(this.key));
 
   readonly ruleForm = form(this.formState, (path) => {
-    required(path.requirementStatus),
     required(path.description),
     maxLength(path.description, 50),
     required(path.property),
