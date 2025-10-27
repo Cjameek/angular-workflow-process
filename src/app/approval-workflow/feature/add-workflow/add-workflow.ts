@@ -1,7 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
 import { AddWorkflowForm } from '../../ui/add-workflow-form/add-workflow-form';
-import { ApprovalWorkflowUtils } from '../../utils/approval-workflow-utils';
 import { ApprovalWorkflow } from '../../data-access/models/approval-workflow.model';
 import { ApprovalWorkflowService } from '../../data-access/services/approval-workflow-service';
 
@@ -19,9 +17,8 @@ import { ApprovalWorkflowService } from '../../data-access/services/approval-wor
   imports: [AddWorkflowForm],
 })
 export class AddWorkflowPage {
-  readonly router = inject(Router);
   readonly workflowService = inject(ApprovalWorkflowService);
-  readonly data = ApprovalWorkflowUtils.createNewApprovalWorkflowState();
+  readonly data = this.workflowService.getApprovalDataFromRouteData();
 
   cancel(): void {
     this.routeHome();
@@ -34,6 +31,6 @@ export class AddWorkflowPage {
   }
 
   private routeHome(): void {
-    this.router.navigateByUrl('/');
+    this.workflowService.routeToApprovals();
   }
 }

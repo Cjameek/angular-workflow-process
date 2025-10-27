@@ -1,8 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { PageHeader } from '../../ui/page-header/page-header';
 import { ApprovalWorkflowService } from '../../data-access/services/approval-workflow-service';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'approval-records-header',
@@ -11,7 +11,7 @@ import { RouterLink } from '@angular/router';
       <div afterTitle>
         <a 
         class="btn"
-       [routerLink]="['add-workflow']">
+        [routerLink]="['add-workflow']">
           + Add Approval
         </a>
       </div>

@@ -86,11 +86,14 @@ export class ApprovalTablePage {
   }
 
   onEdit(row: ApprovalRow): void {
-    console.log('Edit:', row);
-    // Open edit dialog/form
+    this.workflowService.routeToEditPage(row.id);
   }
   
   onDelete(row: ApprovalRow): void {
-    this.workflowService.deleteApproval(row.id);
+    const w = window.confirm('Are you sure you want to delete this approval?');
+
+    if(w){
+      this.workflowService.deleteApproval(row.id);
+    }
   }
 }

@@ -10,5 +10,9 @@ export const routes: Routes = [
   {
     path: 'add-workflow',
     component: AddWorkflowPage
+  },
+  {
+    path: 'edit-workflow',
+    component: AddWorkflowPage
   }
 ];
