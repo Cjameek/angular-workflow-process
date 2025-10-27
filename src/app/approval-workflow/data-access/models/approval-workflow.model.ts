@@ -46,6 +46,7 @@ export const COMPARISON_OPERATOR = ['GREATER', 'EQUAL', 'LESS'] as ComparisonOpe
 export interface ApprovalWorkflow {
   id: string | null,
   title: string,
+  category: string | null,
   requirementStatus: RequirementStatus,
   rules: Rule[],
   approvers: Approver[],

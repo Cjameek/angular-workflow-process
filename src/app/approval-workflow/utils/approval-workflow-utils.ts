@@ -12,6 +12,7 @@ export class ApprovalWorkflowUtils {
     return {
       id: null,
       title: '',
+      category: null,
       requirementStatus: 'REQUIRED',
       rules: [],
       approvers: [],
